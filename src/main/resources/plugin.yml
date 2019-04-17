@@ -1,0 +1,11 @@
+name: NativeScreen
+version: "1.0"
+main: pl.north93.nativescreen.MainPlugin
+
+commands:
+  setnativewindowrenderer:
+    description: Changes renderer of specified board to NativeWindowRenderer.
+  settargetfps:
+    description: Changes target FPS of specified board.
+  test:
+    description: Test

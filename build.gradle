@@ -1,0 +1,55 @@
+plugins {
+    id 'io.franzbecker.gradle-lombok' version '1.14'
+    id 'com.github.johnrengelman.shadow' version '4.0.3'
+}
+
+apply plugin: 'java'
+apply plugin: 'io.franzbecker.gradle-lombok'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+allprojects {
+    repositories() {
+        flatDir {
+            dirs "$rootDir/Libraries"
+        }
+
+        mavenLocal()
+
+        mavenCentral()
+
+        jcenter()
+    }
+}
+
+dependencies {
+    shadow ':spigot-1.12.2'
+
+    compile 'net.java.dev.jna:jna:4.4.0'
+    compile 'net.java.dev.jna:jna-platform:4.4.0'
+}
+
+lombok {
+    // Manually set lombok version because default one doesnt't work on Java 11
+    version = "1.18.4"
+}
+
+jar {
+    // Add some attributes to every manifest
+    manifest {
+        attributes 'Name': project.name
+        attributes 'Implementation-Version': project.version
+    }
+}
+
+shadowJar {
+    archiveName "${project.name}.jar"
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+// execute shadowJar when we run 'gradle build'
+tasks.build.dependsOn tasks.shadowJar
