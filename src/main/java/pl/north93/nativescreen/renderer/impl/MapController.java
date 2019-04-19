@@ -35,9 +35,9 @@ import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
         // wysylamy do gracza informacje o umieszczeniu mapy w ramce
         this.uploadFilledMapItem(player, map.getFrameEntityId(), mapId);
 
-        // wybudzamy wątek renderera, na wypadek gdyby oczekiwał na
+        // wybudzamy wątek renderera, na wypadek gdyby był zapauzowany
         final RendererThreadImpl rendererThread = map.getBoard().getRendererThread();
-        //rendererThread.wakeup();
+        rendererThread.wakeup();
 
         if (playerMapData.isClientCanvasMatchesServer(map))
         {

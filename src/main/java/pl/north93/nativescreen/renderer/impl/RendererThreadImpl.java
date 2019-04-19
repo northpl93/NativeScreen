@@ -4,54 +4,30 @@ import java.util.Collection;
 
 import org.bukkit.entity.Player;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import pl.north93.nativescreen.renderer.IMapRenderer;
 import pl.north93.nativescreen.renderer.IRendererThread;
 
 @Log4j2
+@ToString(of = {"assignedBoard", "working", "targetFps", "latestFrameTime"})
 class RendererThreadImpl extends Thread implements IRendererThread
 {
     private static final double ONE_SECOND = 1000D;
     private final MapController mapController;
     private final BoardImpl assignedBoard;
     private boolean working = true;
-    private long frameTime = 0;
+    @Getter @Setter
     private int targetFps = 30;
+    @Getter
+    private long latestFrameTime = 0;
 
     public RendererThreadImpl(final MapController mapController, final BoardImpl assignedBoard)
     {
         this.mapController = mapController;
         this.assignedBoard = assignedBoard;
-    }
-
-    @Override
-    public synchronized void wakeup()
-    {
-        this.notify();
-    }
-
-    @Override
-    public int getTargetFps()
-    {
-        return this.targetFps;
-    }
-
-    @Override
-    public long getLatestFrameTime()
-    {
-        return this.frameTime;
-    }
-
-    @Override
-    public void setTargetFps(final int targetFps)
-    {
-        this.targetFps = targetFps;
-    }
-
-    @Override
-    public int getTargetMillisecondsPerFrame()
-    {
-        return (int) (ONE_SECOND / this.targetFps);
     }
 
     @Override
@@ -76,8 +52,8 @@ class RendererThreadImpl extends Thread implements IRendererThread
         if (playersInRange.isEmpty())
         {
             // wait until players enter range of our board
-            log.info("There are no players in range of board {}, waiting...", this.assignedBoard);
-            this.wait(1000);
+            log.info("There are no players in range of board {}, pausing thread...", this.assignedBoard);
+            this.wait();
         }
 
         final IMapRenderer renderer = this.assignedBoard.getRenderer();
@@ -88,10 +64,10 @@ class RendererThreadImpl extends Thread implements IRendererThread
 
         final long renderingStart = System.currentTimeMillis();
         this.doRender(playersInRange, renderer);
-        this.frameTime = System.currentTimeMillis() - renderingStart;
+        this.latestFrameTime = System.currentTimeMillis() - renderingStart;
 
-        final long timeToWait = Math.max(0, this.getTargetMillisecondsPerFrame() - this.frameTime);
-        log.debug("Rendering frame done, took {}ms, waiting {}ms", this.frameTime, timeToWait);
+        final long timeToWait = Math.max(0, this.getTargetMillisecondsPerFrame() - this.latestFrameTime);
+        log.debug("Rendering frame done, took {}ms, waiting {}ms", this.latestFrameTime, timeToWait);
 
         if (timeToWait > 0)
         {
@@ -111,5 +87,35 @@ class RendererThreadImpl extends Thread implements IRendererThread
 
             this.mapController.pushNewCanvasToBoardForPlayer(player, this.assignedBoard, canvas);
         }
+    }
+
+    @Override
+    public void wakeup()
+    {
+        if (this.getState() != State.WAITING)
+        {
+            // We intentionally do not wakeup thread when it's in TIMED_WAITING state,
+            // because we don't want to render additional unnecessary frames, when
+            // this method is called.
+            return;
+        }
+
+        log.info("Waking up RendererThread of {}", this.assignedBoard.getIdentifier());
+        synchronized (this)
+        {
+            this.notify();
+        }
+    }
+
+    public void end()
+    {
+        this.working = false;
+        log.info("RendererThread of {} stopped", this.assignedBoard.getIdentifier());
+    }
+
+    @Override
+    public int getTargetMillisecondsPerFrame()
+    {
+        return (int) (ONE_SECOND / this.targetFps);
     }
 }

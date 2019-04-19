@@ -85,6 +85,7 @@ class BoardImpl implements IBoard
      */
     public void cleanup()
     {
+        this.rendererThread.end();
         this.renderer = null;
         for (int x = 0; x < this.width; x++)
         {

@@ -4,13 +4,16 @@ public interface IRendererThread
 {
     void start();
 
+    /**
+     * Wakes up thread if it's actual in WAITING state.
+     */
     void wakeup();
 
     int getTargetFps();
 
-    long getLatestFrameTime();
-
     void setTargetFps(int targetFps);
 
     int getTargetMillisecondsPerFrame();
+
+    long getLatestFrameTime();
 }
