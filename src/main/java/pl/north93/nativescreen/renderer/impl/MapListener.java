@@ -50,7 +50,7 @@ public class MapListener implements Listener
     @EventHandler
     public void resetCanvasesWhenRespawn(final PlayerRespawnEvent event)
     {
-        final PlayerMapData data = this.mapController.getPlayerMapData(event.getPlayer());
+        final PlayerMapData data = this.mapController.getOrComputePlayerMapData(event.getPlayer());
 
         // Respawn u klienta powoduje zresetowanie wszystkich zcachowanych kanw,
         // dlatego my robimy to samo na serwerze.
@@ -60,7 +60,7 @@ public class MapListener implements Listener
     @EventHandler
     public void resetCanvasesWhenWorldSwitch(final PlayerChangedWorldEvent event)
     {
-        final PlayerMapData data = this.mapController.getPlayerMapData(event.getPlayer());
+        final PlayerMapData data = this.mapController.getOrComputePlayerMapData(event.getPlayer());
 
         // Zmiana swiata u klienta powoduje dziwne zachowanie i niewyswietlanie map.
         data.resetAllClientSideCanvases();

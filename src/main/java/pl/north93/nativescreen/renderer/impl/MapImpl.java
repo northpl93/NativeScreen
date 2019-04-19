@@ -101,6 +101,7 @@ class MapImpl implements IMap
         }
 
         final EntityTrackerEntry trackerEntry = EntityTrackerHelper.getTrackerEntry(nmsEntity);
+        // java.util.ConcurrentModificationException: null
         return trackerEntry.trackedPlayers.stream().map(EntityPlayer::getBukkitEntity).collect(Collectors.toSet());
     }
 

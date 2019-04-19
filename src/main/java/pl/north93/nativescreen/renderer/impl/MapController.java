@@ -6,6 +6,8 @@ import static pl.north93.nativescreen.utils.MetadataUtils.getMetadataOrCompute;
 import static pl.north93.nativescreen.utils.MetadataUtils.setMetadata;
 
 
+import javax.annotation.Nullable;
+
 import java.util.function.Supplier;
 
 import net.minecraft.server.v1_12_R1.EntityPlayer;
@@ -28,7 +30,7 @@ class MapController implements Listener
 {
     public void handlePlayerEnter(final MapImpl map, final Player player)
     {
-        final PlayerMapData playerMapData = this.getPlayerMapData(player);
+        final PlayerMapData playerMapData = this.getOrComputePlayerMapData(player);
         final int mapId = playerMapData.getMapId(map);
 
         // wysylamy do gracza informacje o umieszczeniu mapy w ramce
@@ -63,6 +65,10 @@ class MapController implements Listener
     public void pushNewCanvasToBoardForPlayer(final Player player, final BoardImpl board, final MapCanvasImpl mapCanvas)
     {
         final PlayerMapData playerMapData = this.getPlayerMapData(player);
+        if (playerMapData == null)
+        {
+            return;
+        }
 
         int notUploaded = 0;
         for (int i = 0; i < board.getWidth(); i++)
@@ -93,10 +99,16 @@ class MapController implements Listener
         log.debug("Skipped uploading of {}% maps", percent);
     }
 
-    public PlayerMapData getPlayerMapData(final Player player)
+    public PlayerMapData getOrComputePlayerMapData(final Player player)
     {
         final Supplier<PlayerMapData> defaultValue = () -> new PlayerMapData(player);
         return getMetadataOrCompute(player, "PlayerMapData", defaultValue);
+    }
+
+    @Nullable
+    public PlayerMapData getPlayerMapData(final Player player)
+    {
+        return getMetadata(player, "PlayerMapData");
     }
 
     public void deletePlayerMapData(final Player player)
