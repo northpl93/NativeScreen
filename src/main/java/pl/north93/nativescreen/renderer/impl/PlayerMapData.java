@@ -79,7 +79,7 @@ class PlayerMapData
     {
         final MapContainer container = this.getOrComputeContainer(map);
         // delegujemy wyslanie pakietu do specjalnej klasy
-        CanvasUploader.doUpload(this.player, container.getId(), container.getClientCanvas(), container.getServerCanvas());
+        CanvasUploader.doUpload(this.player, container.getId(), container.getServerCanvas());
         // zapisujemy nowy canvas widoczny u klienta
         container.setClientCanvas(container.getServerCanvas());
     }

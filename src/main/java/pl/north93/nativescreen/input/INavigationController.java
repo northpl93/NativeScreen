@@ -4,6 +4,5 @@ public interface INavigationController
 {
     void registerNavigationHandler(NavigationOutputHandler handler);
 
-    boolean isKeyDown(Key key) // check is key pressed
-    ;
+    boolean isKeyDown(Key key); // check is key pressed
 }

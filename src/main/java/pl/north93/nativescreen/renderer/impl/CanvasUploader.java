@@ -16,7 +16,7 @@ import pl.north93.nativescreen.renderer.IMapCanvas;
     private static final int PACKET_PLAY_OUT_MAP_ID = 0x24;
     private static final int MAP_SIZE = 128;
 
-    public static void doUpload(final Player player, final int mapId, final IMapCanvas old, final IMapCanvas newCanvas)
+    public static void doUpload(final Player player, final int mapId, final IMapCanvas newCanvas)
     {
         final CraftPlayer craftPlayer = ((CraftPlayer) player);
 

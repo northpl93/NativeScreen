@@ -1,5 +1,7 @@
 package pl.north93.nativescreen.renderer;
 
+import javax.annotation.Nullable;
+
 import java.util.Collection;
 
 import org.bukkit.World;
@@ -19,6 +21,7 @@ public interface IBoard
 
     void setRenderer(IMapRenderer renderer);
 
+    @Nullable
     IMapRenderer getRenderer();
 
     IMap getMap(int x, int y);

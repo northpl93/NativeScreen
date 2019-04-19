@@ -88,12 +88,13 @@ final class MapCanvasImpl implements IMapCanvas
         int yoff = 0;
         int off;
 
-        for (int y = 0; y < nativeImage.getHeight(); y++, yoff+=nativeImage.getWidth())
+        for (int y = 0; y < nativeImage.getHeight(); y++, yoff += nativeImage.getWidth())
         {
             off = yoff;
             for (int x = 0; x < nativeImage.getWidth(); x++)
             {
-                this.setPixel(modifierX + x, modifierY + y, this.translateColor(nativeImage.getData()[off++]));
+                final byte color = this.translateColor(nativeImage.getData()[off++]);
+                this.setPixel(modifierX + x, modifierY + y, color);
             }
         }
     }
@@ -118,7 +119,7 @@ final class MapCanvasImpl implements IMapCanvas
         final byte value = TRANSLATION_CACHE.get(rgbValue);
         if (value == TRANSLATION_CACHE.getNoEntryValue())
         {
-            final byte newValue = (byte) MapColor.find(new Color(rgbValue, false)); // todo To ma byc true czy false? xD
+            final byte newValue = (byte) MapColor.find(new Color(rgbValue, false));
 
             TRANSLATION_CACHE.put(rgbValue, newValue);
             return newValue;

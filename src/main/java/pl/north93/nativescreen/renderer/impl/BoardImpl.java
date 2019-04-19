@@ -1,39 +1,40 @@
 package pl.north93.nativescreen.renderer.impl;
 
-import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.HashSet;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import pl.north93.nativescreen.renderer.IBoard;
 import pl.north93.nativescreen.renderer.IMapRenderer;
 
+@ToString(of = {"identifier", "width", "height", "renderer"})
 class BoardImpl implements IBoard
 {
-    private final MapController      mapController;
+    @Getter
+    private final MapController mapController;
+    @Getter
     private final RendererThreadImpl rendererThread;
-    private final String      name;
-    private final int         width, height;
+    @Getter
+    private final String identifier;
+    @Getter
+    private final int width, height;
     private final MapImpl[][] maps;
+    @Getter @Setter
     private IMapRenderer renderer;
 
-    public BoardImpl(final MapController mapController, final String name, final int width, final int height, final MapImpl[][] maps)
+    public BoardImpl(final MapController mapController, final String identifier, final int width, final int height, final MapImpl[][] maps)
     {
         this.rendererThread = new RendererThreadImpl(mapController, this);
         this.mapController = mapController;
-        this.name = name;
+        this.identifier = identifier;
         this.width = width;
         this.height = height;
         this.maps = maps;
-    }
-
-    @Override
-    public String getIdentifier()
-    {
-        return this.name;
     }
 
     @Override
@@ -41,18 +42,6 @@ class BoardImpl implements IBoard
     {
         final MapImpl firstMap = this.maps[0][0];
         return firstMap.getLocation().getWorld();
-    }
-
-    @Override
-    public int getWidth()
-    {
-        return this.width;
-    }
-
-    @Override
-    public int getHeight()
-    {
-        return this.height;
     }
 
     @Override
@@ -70,32 +59,9 @@ class BoardImpl implements IBoard
     }
 
     @Override
-    public void setRenderer(final IMapRenderer renderer)
-    {
-        this.renderer = renderer;
-    }
-
-    @Override
-    public @Nullable IMapRenderer getRenderer()
-    {
-        return this.renderer;
-    }
-
-    @Override
     public MapImpl getMap(final int x, final int y)
     {
         return this.maps[x][y];
-    }
-
-    @Override
-    public RendererThreadImpl getRendererThread()
-    {
-        return this.rendererThread;
-    }
-
-    public MapController getMapController()
-    {
-        return this.mapController;
     }
 
     public boolean isEntityBelongsToBoard(final int entityId)

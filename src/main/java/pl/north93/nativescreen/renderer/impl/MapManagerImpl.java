@@ -8,12 +8,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-
+import lombok.ToString;
 import pl.north93.nativescreen.renderer.IBoard;
 import pl.north93.nativescreen.renderer.IMapManager;
 
+@ToString(of = "boards")
 public class MapManagerImpl implements IMapManager
 {
     private final MapController mapController = new MapController();
@@ -61,11 +60,5 @@ public class MapManagerImpl implements IMapManager
         {
             boardImpl.cleanup();
         }
-    }
-
-    @Override
-    public String toString()
-    {
-        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).toString();
     }
 }

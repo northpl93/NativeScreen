@@ -25,7 +25,7 @@ import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
 
 @Log4j2
 @ToString(onlyExplicitlyIncluded = true)
-class MapController implements Listener
+/*default*/ class MapController implements Listener
 {
     public void handlePlayerEnter(final MapImpl map, final Player player)
     {

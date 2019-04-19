@@ -16,6 +16,7 @@ import org.bukkit.craftbukkit.v1_12_R1.entity.CraftItemFrame;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 
+import lombok.Getter;
 import lombok.ToString;
 import pl.north93.nativescreen.renderer.IMap;
 import pl.north93.nativescreen.utils.EntityTrackerHelper;
@@ -24,6 +25,7 @@ import pl.north93.nativescreen.utils.MetadataUtils;
 @ToString(of = {"frameId", "itemFrame"})
 class MapImpl implements IMap
 {
+    @Getter
     private final BoardImpl board;
     private final UUID      frameId;
     private       ItemFrame itemFrame;
@@ -34,14 +36,6 @@ class MapImpl implements IMap
         this.frameId = itemFrame.getUniqueId();
         this.itemFrame = itemFrame;
         controller.updateMapInEntity(itemFrame, this);
-    }
-
-    /**
-     * @return tablica do ktorej nalezy ta mapa.
-     */
-    public BoardImpl getBoard()
-    {
-        return this.board;
     }
 
     /**
