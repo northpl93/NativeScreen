@@ -1,7 +1,6 @@
 package pl.north93.nativescreen.renderer.impl;
 
-import javax.annotation.Nullable;
-
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.bukkit.Location;
@@ -57,29 +56,29 @@ final class BoardFactory
         final CraftWorld world = (CraftWorld) location.getWorld();
         world.getBlockAt(location).setType(Material.AIR);
 
-        ItemFrame itemFrame = getFrameAt(location);
-        if (itemFrame == null)
+        final ItemFrame itemFrame = getFrameAt(location).orElseGet(() ->
         {
-            itemFrame = (ItemFrame) world.spawnEntity(location, EntityType.ITEM_FRAME);
-            itemFrame.setInvulnerable(true);
-            itemFrame.setFacingDirection(face);
-        }
+            final ItemFrame newFrame = (ItemFrame) world.spawnEntity(location, EntityType.ITEM_FRAME);
+            newFrame.setInvulnerable(true);
+            newFrame.setFacingDirection(face);
+
+            return newFrame;
+        });
 
         return new MapImpl(board.getMapController(), board, itemFrame);
     }
 
-    private static @Nullable
-    ItemFrame getFrameAt(final Location loc)
+    private static Optional<ItemFrame> getFrameAt(final Location loc)
     {
         final Location frameLocation = new Location(loc.getWorld(), loc.getBlockX() + 0.5, loc.getBlockY() + 0.5, loc.getZ() + 0.5);
         for (final Entity entity : frameLocation.getWorld().getNearbyEntities(frameLocation, 0.5, 0.5, 0.5))
         {
             if (entity instanceof ItemFrame)
             {
-                return (ItemFrame) entity;
+                return Optional.of((ItemFrame) entity);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private static void walkWall(final Location loc1, final Location loc2, final Consumer<Location> locationConsumer)

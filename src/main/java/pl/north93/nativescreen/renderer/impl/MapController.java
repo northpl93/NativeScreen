@@ -6,8 +6,7 @@ import static pl.north93.nativescreen.utils.MetadataUtils.getMetadataOrCompute;
 import static pl.north93.nativescreen.utils.MetadataUtils.setMetadata;
 
 
-import javax.annotation.Nullable;
-
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import net.minecraft.server.v1_12_R1.EntityPlayer;
@@ -64,12 +63,11 @@ class MapController implements Listener
 
     public void pushNewCanvasToBoardForPlayer(final Player player, final BoardImpl board, final MapCanvasImpl mapCanvas)
     {
-        final PlayerMapData playerMapData = this.getPlayerMapData(player);
-        if (playerMapData == null)
-        {
-            return;
-        }
+        this.getPlayerMapData(player).ifPresent(playerMapData -> this.doPushNewCanvasToBoardForPlayer(playerMapData, board, mapCanvas));
+    }
 
+    private void doPushNewCanvasToBoardForPlayer(final PlayerMapData playerMapData, final BoardImpl board, final MapCanvasImpl mapCanvas)
+    {
         int notUploaded = 0;
         for (int i = 0; i < board.getWidth(); i++)
         {
@@ -105,10 +103,9 @@ class MapController implements Listener
         return getMetadataOrCompute(player, "PlayerMapData", defaultValue);
     }
 
-    @Nullable
-    public PlayerMapData getPlayerMapData(final Player player)
+    public Optional<PlayerMapData> getPlayerMapData(final Player player)
     {
-        return getMetadata(player, "PlayerMapData");
+        return Optional.ofNullable(getMetadata(player, "PlayerMapData"));
     }
 
     public void deletePlayerMapData(final Player player)

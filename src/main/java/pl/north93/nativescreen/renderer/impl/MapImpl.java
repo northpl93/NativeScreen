@@ -1,11 +1,10 @@
 package pl.north93.nativescreen.renderer.impl;
 
-import javax.annotation.Nullable;
-
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.minecraft.server.v1_12_R1.Entity;
 import net.minecraft.server.v1_12_R1.EntityPlayer;
@@ -52,13 +51,7 @@ class MapImpl implements IMap
      */
     public int getFrameEntityId()
     {
-        final ItemFrame itemFrame = this.getItemFrame();
-        if (itemFrame == null)
-        {
-            return -1;
-        }
-
-        return itemFrame.getEntityId();
+        return this.getItemFrame().map(ItemFrame::getEntityId).orElse(- 1);
     }
 
     /**
@@ -70,21 +63,18 @@ class MapImpl implements IMap
      */
     public boolean isTrackedBy(final Player player)
     {
-        final Entity nmsEntity = this.getNmsEntity();
-        if (nmsEntity == null)
+        return this.getNmsEntity().map(nmsEntity ->
         {
-            return false;
-        }
-
-        final EntityTrackerEntry trackerEntry = EntityTrackerHelper.getTrackerEntry(nmsEntity);
-        for (final EntityPlayer trackedPlayer : trackerEntry.trackedPlayers)
-        {
-            if (player.equals(trackedPlayer.getBukkitEntity()))
+            final EntityTrackerEntry trackerEntry = EntityTrackerHelper.getTrackerEntry(nmsEntity);
+            for (final EntityPlayer trackedPlayer : trackerEntry.trackedPlayers)
             {
-                return true;
+                if (player.equals(trackedPlayer.getBukkitEntity()))
+                {
+                    return true;
+                }
             }
-        }
-        return false;
+            return false;
+        }).orElse(false);
     }
 
     /**
@@ -94,39 +84,28 @@ class MapImpl implements IMap
      */
     public Collection<Player> getTrackingPlayers()
     {
-        final Entity nmsEntity = this.getNmsEntity();
-        if (nmsEntity == null)
+        return this.getNmsEntity().map(nmsEntity ->
         {
-            return Collections.emptyList();
-        }
-
-        final EntityTrackerEntry trackerEntry = EntityTrackerHelper.getTrackerEntry(nmsEntity);
-        // java.util.ConcurrentModificationException: null
-        return trackerEntry.trackedPlayers.stream().map(EntityPlayer::getBukkitEntity).collect(Collectors.toSet());
+            final EntityTrackerEntry trackerEntry = EntityTrackerHelper.getTrackerEntry(nmsEntity);
+            // java.util.ConcurrentModificationException: null
+            return trackerEntry.trackedPlayers.stream();
+        }).orElseGet(Stream::empty).map(EntityPlayer::getBukkitEntity).collect(Collectors.toList());
     }
 
-    @Nullable
-    private ItemFrame getItemFrame()
+    private Optional<ItemFrame> getItemFrame()
     {
         if (this.itemFrame != null && this.itemFrame.isValid())
         {
-            return this.itemFrame;
+            return Optional.of(this.itemFrame);
         }
 
         final ItemFrame newItemFrame = (ItemFrame) Bukkit.getEntity(this.frameId);
-        return this.itemFrame = newItemFrame;
+        return Optional.ofNullable(this.itemFrame = newItemFrame);
     }
 
-    @Nullable
-    private Entity getNmsEntity()
+    private Optional<Entity> getNmsEntity()
     {
-        final ItemFrame itemFrame = this.getItemFrame();
-        if (itemFrame == null)
-        {
-            return null;
-        }
-
-        return EntityTrackerHelper.toNmsEntity(itemFrame);
+        return this.getItemFrame().map(EntityTrackerHelper::toNmsEntity);
     }
 
     /**
@@ -149,12 +128,6 @@ class MapImpl implements IMap
     @Override
     public Location getLocation()
     {
-        final ItemFrame itemFrame = this.getItemFrame();
-        if (itemFrame == null)
-        {
-            return null;
-        }
-
-        return itemFrame.getLocation();
+        return this.getItemFrame().map(ItemFrame::getLocation).orElse(null);
     }
 }
