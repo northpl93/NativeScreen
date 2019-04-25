@@ -2,8 +2,6 @@ package pl.north93.nativescreen.winapi.renderer;
 
 import com.sun.jna.platform.win32.WinDef.HWND;
 
-import org.bukkit.entity.Player;
-
 import lombok.ToString;
 import pl.north93.nativescreen.input.Key;
 import pl.north93.nativescreen.input.NavigationOutputHandler;
@@ -31,7 +29,7 @@ public class NativeWindowRenderer implements IMapRenderer, NavigationOutputHandl
     }
 
     @Override
-    public void render(final IBoard board, final IMapCanvas canvas, final Player player) throws Exception
+    public void render(final IBoard board, final IMapCanvas canvas) throws Exception
     {
         final NativeImage image = this.tryCaptureImage();
         if (image == null)
@@ -44,7 +42,7 @@ public class NativeWindowRenderer implements IMapRenderer, NavigationOutputHandl
         final int startY = this.getWindowStartY(canvas, image);
         canvas.putImage(startX, startY, image);
 
-        this.cursorRendererComponent.render(board, canvas, player);
+        this.cursorRendererComponent.render(board, canvas);
     }
 
     private NativeImage tryCaptureImage()

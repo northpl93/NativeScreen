@@ -4,8 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import org.bukkit.entity.Player;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -28,7 +26,7 @@ public class CursorRendererComponent implements IMapRenderer, NavigationOutputHa
     private Instant lastUsed = Instant.now();
 
     @Override
-    public void render(final IBoard board, final IMapCanvas canvas, final Player player) throws Exception
+    public void render(final IBoard board, final IMapCanvas canvas) throws Exception
     {
         if (this.shouldSkipCursorRendering())
         {

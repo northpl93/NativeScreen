@@ -24,6 +24,9 @@ allprojects {
 dependencies {
     shadow ':spigot-1.12.2'
 
+    compile 'org.jcodec:jcodec:0.2.3'
+    compile 'org.jcodec:jcodec-javase:0.2.3'
+
     compile 'net.java.dev.jna:jna:4.4.0'
     compile 'net.java.dev.jna:jna-platform:4.4.0'
 }

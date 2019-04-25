@@ -8,8 +8,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import pl.north93.nativescreen.cmd.SetNativeWindowRendererCmd;
-import pl.north93.nativescreen.cmd.SetTargetFpsCmd;
+import pl.north93.nativescreen.fullscreen.SetFullScreenRendererCmd;
+import pl.north93.nativescreen.video.cmd.SetVideoRendererCmd;
+import pl.north93.nativescreen.winapi.renderer.SetNativeWindowRendererCmd;
+import pl.north93.nativescreen.renderer.cmd.SetTargetFpsCmd;
 import pl.north93.nativescreen.input.INavigationController;
 import pl.north93.nativescreen.gui.DebugMouseMovementRenderer;
 import pl.north93.nativescreen.input.helper.NavigationOutputHandlerDebugger;
@@ -50,7 +52,9 @@ public class MainPlugin extends JavaPlugin
         //board.setRenderer(new TestFullScreenRenderer());
         //board.setRenderer(new ListWindowsRenderer());
 
+        this.getCommand("setvideorenderer").setExecutor(new SetVideoRendererCmd());
         this.getCommand("setnativewindowrenderer").setExecutor(new SetNativeWindowRendererCmd());
+        this.getCommand("setfullscreenrenderer").setExecutor(new SetFullScreenRendererCmd());
         this.getCommand("settargetfps").setExecutor(new SetTargetFpsCmd());
     }
 

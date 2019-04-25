@@ -3,8 +3,15 @@ version: "1.0"
 main: pl.north93.nativescreen.MainPlugin
 
 commands:
+  # Change renderer in specified board
+  setvideorenderer:
+    description: Changes renderer of specified board to VideoRenderer
   setnativewindowrenderer:
     description: Changes renderer of specified board to NativeWindowRenderer.
+  setfullscreenrenderer:
+    description: Changes renderer of specified board to FullScreenRenderer.
+
+  # General rendering commands
   settargetfps:
     description: Changes target FPS of specified board.
   test:

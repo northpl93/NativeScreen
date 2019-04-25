@@ -1,4 +1,4 @@
-package pl.north93.nativescreen.cmd;
+package pl.north93.nativescreen.renderer.cmd;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

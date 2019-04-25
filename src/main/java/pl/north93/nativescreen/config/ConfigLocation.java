@@ -1,6 +1,5 @@
 package pl.north93.nativescreen.config;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -20,11 +19,9 @@ public class ConfigLocation
     private int x;
     private int y;
     private int z;
-    private String world;
 
-    public Location toBukkit()
+    public Location toBukkit(final World world)
     {
-        final World bukkitWorld = Bukkit.getWorld(this.world);
-        return new Location(bukkitWorld, this.x, this.y, this.z);
+        return new Location(world, this.x, this.y, this.z);
     }
 }

@@ -4,8 +4,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
 
-import org.bukkit.entity.Player;
-
 import lombok.Getter;
 import pl.north93.nativescreen.input.Key;
 import pl.north93.nativescreen.input.NavigationOutputHandler;
@@ -27,7 +25,7 @@ public abstract class AbstractBaseGuiRenderer implements IMapRenderer, Navigatio
     }
 
     @Override
-    public final void render(final IBoard board, final IMapCanvas canvas, final Player player) throws Exception
+    public final void render(final IBoard board, final IMapCanvas canvas) throws Exception
     {
         final BufferedImage bufferedImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_RGB);
         final Graphics graphics = bufferedImage.getGraphics();
@@ -43,7 +41,7 @@ public abstract class AbstractBaseGuiRenderer implements IMapRenderer, Navigatio
         this.render(board, bufferedImage, graphics);
         canvas.putImage(0, 0, bufferedImage);
 
-        this.cursorRendererComponent.render(board, canvas, player);
+        this.cursorRendererComponent.render(board, canvas);
     }
 
     public abstract void render(final IBoard board, final BufferedImage bufferedImage, final Graphics graphics);

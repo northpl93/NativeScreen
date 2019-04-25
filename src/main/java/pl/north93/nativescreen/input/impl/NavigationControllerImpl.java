@@ -4,24 +4,34 @@ import static java.lang.Math.abs;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.bukkit.Bukkit;
+
+import lombok.ToString;
+import lombok.extern.log4j.Log4j2;
+import pl.north93.nativescreen.MainPlugin;
 import pl.north93.nativescreen.input.INavigationController;
 import pl.north93.nativescreen.input.Key;
 import pl.north93.nativescreen.input.NavigationOutputHandler;
 
+@Log4j2
+@ToString
 /*default*/ class NavigationControllerImpl implements INavigationController
 {
     private static final double CURSOR_MOVE_EPSILON = 0.5;
-    private final Map<Key, Boolean> keyStates = new HashMap<>();
+    private final Map<Key, Boolean> keyStates = new ConcurrentHashMap<>();
     private final List<NavigationOutputHandler> handlers = new ArrayList<>();
 
     @Override
     public void registerNavigationHandler(final NavigationOutputHandler handler)
     {
         this.handlers.add(handler);
+
+        final String handlerName = handler.getClass().getName();
+        log.info("Registered new navigation handler {}", handlerName);
     }
 
     public void signalMouseMovement(final float deltaX, final float deltaY)
@@ -59,9 +69,30 @@ import pl.north93.nativescreen.input.NavigationOutputHandler;
 
     public void signalKeyHit(final Key key)
     {
+        if (this.isKeyDown(key))
+        {
+            // do not multiply signal hit of same key
+            return;
+        }
+
+        final Runnable runnable = () -> this.doSignalKeyHit(key);
+        Bukkit.getScheduler().runTaskAsynchronously(MainPlugin.getInstance(), runnable);
+    }
+
+    private void doSignalKeyHit(final Key key)
+    {
         // signal key down
         this.keyStates.put(key, true);
         this.handlers.forEach(handler -> handler.onKeyDown(key));
+
+        try
+        {
+            Thread.sleep(100);
+        }
+        catch (final InterruptedException e)
+        {
+            log.error("Interrupted thread during emulation of key release delay", e);
+        }
 
         // signal key up
         this.keyStates.put(key, false);
