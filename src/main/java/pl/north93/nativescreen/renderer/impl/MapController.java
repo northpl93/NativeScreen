@@ -19,14 +19,19 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 import io.netty.channel.Channel;
+import lombok.AllArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
+import pl.north93.nativescreen.renderer.IMapUploader;
 import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
 
 @Log4j2
 @ToString(onlyExplicitlyIncluded = true)
+@AllArgsConstructor
 /*default*/ class MapController implements Listener
 {
+    private final IMapUploader mapUploader;
+
     public void handlePlayerEnter(final MapImpl map, final Player player)
     {
         final PlayerMapData playerMapData = this.getOrComputePlayerMapData(player);
@@ -46,7 +51,7 @@ import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
         }
 
         // uploadujemy canvas serwera do klienta i ustawiamy go jako aktywny u klienta
-        playerMapData.uploadServerCanvasToClient(map);
+        playerMapData.uploadServerCanvasToClient(this.mapUploader, map);
     }
 
     private void uploadFilledMapItem(final Player player, final int frameEntityId, final int mapId)
@@ -87,7 +92,7 @@ import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
 
                 if (playerMapData.isMapVisible(map))
                 {
-                    playerMapData.uploadServerCanvasToClient(map);
+                    playerMapData.uploadServerCanvasToClient(this.mapUploader, map);
                 }
             }
         }

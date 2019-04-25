@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import pl.north93.nativescreen.renderer.IMapCanvas;
+import pl.north93.nativescreen.renderer.IMapUploader;
 
 /**
  * Klasa przechowujaca stan map u danego gracza.
@@ -75,11 +76,11 @@ class PlayerMapData
         return container.getServerCanvas() != null;
     }
 
-    public void uploadServerCanvasToClient(final MapImpl map)
+    public void uploadServerCanvasToClient(IMapUploader mapUploader, final MapImpl map)
     {
         final MapContainer container = this.getOrComputeContainer(map);
-        // delegujemy wyslanie pakietu do specjalnej klasy
-        CanvasUploader.doUpload(this.player, container.getId(), container.getServerCanvas());
+        // delegujemy wyslanie pakietu
+        mapUploader.uploadMapToPlayer(this.player, container.getId(), container.getServerCanvas());
         // zapisujemy nowy canvas widoczny u klienta
         container.setClientCanvas(container.getServerCanvas());
     }

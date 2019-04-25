@@ -4,24 +4,49 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import net.minecraft.server.v1_12_R1.DedicatedServer;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import lombok.ToString;
 import pl.north93.nativescreen.renderer.IBoard;
 import pl.north93.nativescreen.renderer.IMapManager;
+import pl.north93.nativescreen.renderer.IMapUploader;
+import pl.north93.nativescreen.renderer.compressor.MultithreadedCompressedMapUploader;
 
 @ToString(of = "boards")
 public class MapManagerImpl implements IMapManager
 {
-    private final MapController mapController = new MapController();
+    private final MapController mapController;
     private final List<BoardImpl> boards = new ArrayList<>();
 
     public MapManagerImpl(final JavaPlugin plugin)
     {
+        final IMapUploader mapUploader = this.constructMapUploader(plugin);
+        this.mapController = new MapController(mapUploader);
+
         final MapListener mapListener = new MapListener(this, this.mapController);
         Bukkit.getPluginManager().registerEvents(mapListener, plugin);
+    }
+
+    private IMapUploader constructMapUploader(final JavaPlugin plugin)
+    {
+        final CraftServer craftServer = (CraftServer) plugin.getServer();
+        final DedicatedServer dedicatedServer = craftServer.getHandle().getServer();
+
+        final int compressThreshold = dedicatedServer.aG();
+        if (compressThreshold > 0)
+        {
+            // whole server must have enabled compression to allow our things to work
+            return new MultithreadedCompressedMapUploader(plugin);
+        }
+        else
+        {
+            return new StandardMapUploader();
+        }
     }
 
     @Override
