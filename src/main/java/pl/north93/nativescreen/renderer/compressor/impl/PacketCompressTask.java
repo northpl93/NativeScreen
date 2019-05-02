@@ -8,7 +8,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.ToString;
 import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
 
@@ -16,7 +15,6 @@ import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
 @AllArgsConstructor
 /*default*/ final class PacketCompressTask implements Runnable
 {
-    private static final ThreadLocal<DeflaterHolder> deflate = ThreadLocal.withInitial(DeflaterHolder::new);
     private final Channel channel;
     private final ICompressablePacket compressablePacket;
 
@@ -52,13 +50,13 @@ import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
         final ByteBuf compressedBuffer = UnpooledByteBufAllocator.DEFAULT.buffer(128);
         final PacketDataSerializer compressedSerializer = new PacketDataSerializer(compressedBuffer);
 
-        final DeflaterHolder deflaterHolder = deflate.get();
-        final Deflater deflater = deflaterHolder.getDeflater();
-        final byte[] buffer = deflaterHolder.getBuffer();
+        final DeflateContext context = DeflateContext.getContext();
+        final Deflater deflater = context.getDeflater();
+        final byte[] buffer = context.getBuffer();
 
         final byte[] deflateInput = new byte[uncompressedSize];
         uncompressedBuffer.readBytes(deflateInput);
-        compressedSerializer.d(deflateInput.length);
+        compressedSerializer.d(deflateInput.length); // writeVarInt - uncompressed size
 
         deflater.setInput(deflateInput, 0, uncompressedSize);
         deflater.finish();
@@ -73,12 +71,4 @@ import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
 
         return compressedBuffer;
     }
-}
-
-@Getter
-@ToString
-class DeflaterHolder
-{
-    private final byte[]   buffer   = new byte[8196];
-    private final Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
 }

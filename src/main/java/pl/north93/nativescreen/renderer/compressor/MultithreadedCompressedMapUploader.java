@@ -18,7 +18,7 @@ import pl.north93.nativescreen.renderer.compressor.packet.CompressedMapPacket;
 
 /**
  * Implementation of {@link IMapUploader} which bypasses Minecraft's compression system
- * and does it on theirs own in multithreaded way.
+ * and compresses packets in multithreaded way.
  *
  * Use it only when compression is enabled in server config, otherwise
  * you will cause protocol error in client.
