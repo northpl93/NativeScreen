@@ -13,6 +13,7 @@ import pl.north93.nativescreen.renderer.IMapRenderer;
 public class FullScreenRenderer implements IMapRenderer, NavigationOutputHandler
 {
     private final Robot robot;
+    private final Rectangle screenRect;
 
     public FullScreenRenderer()
     {
@@ -24,15 +25,15 @@ public class FullScreenRenderer implements IMapRenderer, NavigationOutputHandler
         {
             throw new RuntimeException(e);
         }
+
+        final GraphicsDevice monitor1 = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[0];
+        this.screenRect = monitor1.getDefaultConfiguration().getBounds();
     }
 
     @Override
-    public void render(final IBoard board, final IMapCanvas canvas) throws Exception
+    public void render(final IBoard board, final IMapCanvas canvas)
     {
-        final GraphicsDevice monitor1 = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[0];
-        final Rectangle screenRect = monitor1.getDefaultConfiguration().getBounds();
-
-        final BufferedImage capture = this.robot.createScreenCapture(screenRect);
+        final BufferedImage capture = this.robot.createScreenCapture(this.screenRect);
         canvas.putImage(0, 0, capture);
     }
 

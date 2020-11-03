@@ -2,7 +2,6 @@ package pl.north93.nativescreen.renderer.impl;
 
 import javax.imageio.ImageIO;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -10,19 +9,15 @@ import java.util.Arrays;
 
 import org.bukkit.map.MapPalette;
 
-import gnu.trove.map.TIntByteMap;
-import gnu.trove.map.hash.TIntByteHashMap;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import pl.north93.nativescreen.renderer.IMapCanvas;
-import pl.north93.nativescreen.renderer.MapColor;
 import pl.north93.nativescreen.winapi.NativeImage;
 
 @Log4j2
 @ToString(of = {"xSize", "ySize"})
 final class MapCanvasImpl implements IMapCanvas
 {
-    private static final TIntByteMap TRANSLATION_CACHE = new TIntByteHashMap(1_000, 0.5F, -1, (byte) -1);
     private static final int SINGLE_MAP_SIDE = 128;
     private final int xSize, ySize;
     private final byte[] buffer;
@@ -71,30 +66,38 @@ final class MapCanvasImpl implements IMapCanvas
         final int width = image.getWidth();
         final int height = image.getHeight();
 
-        for (int x = 0; x < width; x++)
+        final int[] rgbArray = new int[width * height];
+        image.getRGB(0, 0, width, height, rgbArray, 0, width);
+
+        final int maxX = width + modifierX;
+        final int maxY = height + modifierY;
+
+        int rgbIndex = 0;
+        for (int y = 0; y < maxY; y++)
         {
-            for (int y = 0; y < height; y++)
+            for (int x = 0; x < maxX; x++)
             {
-                final byte color = this.translateColor(image.getRGB(x, y));
-                this.setPixel(modifierX + x, modifierY + y, color);
+                final byte color = ColorConverterCache.translateColor(rgbArray[rgbIndex++]);
+                this.setPixel(x, y, color);
             }
         }
     }
 
-
     @Override
     public void putImage(final int modifierX, final int modifierY, final NativeImage nativeImage)
     {
-        int yoff = 0;
-        int off;
+        final int maxX = nativeImage.getWidth() + modifierX;
+        final int maxY = nativeImage.getHeight() + modifierY;
 
-        for (int y = 0; y < nativeImage.getHeight(); y++, yoff += nativeImage.getWidth())
+        int nativeIndex = 0;
+        final int[] nativeImageData = nativeImage.getData();
+
+        for (int y = modifierY; y < maxY; y++)
         {
-            off = yoff;
-            for (int x = 0; x < nativeImage.getWidth(); x++)
+            for (int x = modifierX; x < maxX; x++)
             {
-                final byte color = this.translateColor(nativeImage.getData()[off++]);
-                this.setPixel(modifierX + x, modifierY + y, color);
+                final byte color = ColorConverterCache.translateColor(nativeImageData[nativeIndex++]);
+                this.setPixel(x, y, color);
             }
         }
     }
@@ -114,19 +117,6 @@ final class MapCanvasImpl implements IMapCanvas
         }
     }
 
-    private byte translateColor(final int rgbValue)
-    {
-        final byte value = TRANSLATION_CACHE.get(rgbValue);
-        if (value == TRANSLATION_CACHE.getNoEntryValue())
-        {
-            final byte newValue = (byte) MapColor.find(new Color(rgbValue, false));
-
-            TRANSLATION_CACHE.put(rgbValue, newValue);
-            return newValue;
-        }
-
-        return value;
-    }
 
     @Override
     public void fill(final byte color)

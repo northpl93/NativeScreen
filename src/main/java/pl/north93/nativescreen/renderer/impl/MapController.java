@@ -60,6 +60,7 @@ import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
 
         final ItemStack mapItem = new ItemStack(Material.MAP, 1, (short) mapId);
         helper.addMeta(6, EntityMetaPacketHelper.MetaType.SLOT, mapItem);
+        helper.addMeta(7, EntityMetaPacketHelper.MetaType.VAR_INT, 0);
 
         final EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         final Channel channel = entityPlayer.playerConnection.networkManager.channel;

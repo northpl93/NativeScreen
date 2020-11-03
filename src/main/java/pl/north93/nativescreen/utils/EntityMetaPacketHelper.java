@@ -70,6 +70,15 @@ public class EntityMetaPacketHelper
 
     public enum MetaType
     {
+        VAR_INT
+                {
+                    @Override
+                    void write(final PacketDataSerializer serializer, final Object object)
+                    {
+                        serializer.d(1);
+                        serializer.d((Integer) object);
+                    }
+                },
         STRING
                 {
                     @Override

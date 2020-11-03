@@ -12,11 +12,13 @@ import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import pl.north93.nativescreen.renderer.IBoard;
 import pl.north93.nativescreen.renderer.IMapManager;
 import pl.north93.nativescreen.renderer.IMapUploader;
 import pl.north93.nativescreen.renderer.compressor.MultithreadedCompressedMapUploader;
 
+@Slf4j
 @ToString(of = "boards")
 public class MapManagerImpl implements IMapManager
 {
@@ -38,6 +40,8 @@ public class MapManagerImpl implements IMapManager
         final DedicatedServer dedicatedServer = craftServer.getHandle().getServer();
 
         final int compressThreshold = dedicatedServer.aG();
+        log.info("Compress threshold: {}", compressThreshold);
+
         if (compressThreshold > 0)
         {
             // whole server must have enabled compression to allow our things to work

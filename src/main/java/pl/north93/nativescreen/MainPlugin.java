@@ -1,6 +1,7 @@
 package pl.north93.nativescreen;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -84,7 +85,17 @@ public class MainPlugin extends JavaPlugin
         if (command.getName().equalsIgnoreCase("test"))
         {
             final Player player = (Player) sender;
-            this.grabber.grabPlayer(player);
+
+            if (this.grabber.isPlayerGrabbed(player))
+            {
+                this.grabber.unGrabPlayer(player);
+                return true;
+            }
+
+            if (! this.grabber.grabPlayer(player))
+            {
+                player.sendMessage(ChatColor.RED + "Click on minecart first!");
+            }
 
             final IBoard board = this.mapManager.getBoardByName("test1");
             // all input will be redirected by NavigationOutputHandlerRendererRedirect, so we

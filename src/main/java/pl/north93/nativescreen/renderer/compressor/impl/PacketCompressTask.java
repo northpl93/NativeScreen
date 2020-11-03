@@ -1,16 +1,21 @@
 package pl.north93.nativescreen.renderer.compressor.impl;
 
 import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
 
 import net.minecraft.server.v1_12_R1.PacketDataSerializer;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
 
+@Slf4j
 @ToString
 @AllArgsConstructor
 /*default*/ final class PacketCompressTask implements Runnable
@@ -21,10 +26,17 @@ import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
     @Override
     public void run()
     {
-        final ByteBuf compressedData = this.preparePacket();
+        try
+        {
+            final ByteBuf compressedData = this.preparePacket();
 
-        final CompressedPacket compressedPacket = new CompressedPacket(compressedData);
-        this.channel.writeAndFlush(compressedPacket);
+            final CompressedPacket compressedPacket = new CompressedPacket(compressedData);
+            this.channel.writeAndFlush(compressedPacket);
+        }
+        catch (final Exception e)
+        {
+            log.error("Failed to compress packet", e);
+        }
     }
 
     private ByteBuf preparePacket()
@@ -43,32 +55,57 @@ import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
         }
     }
 
+    @SneakyThrows
     private ByteBuf doCompression(final ByteBuf uncompressedBuffer)
     {
         final int uncompressedSize = uncompressedBuffer.readableBytes();
 
-        final ByteBuf compressedBuffer = UnpooledByteBufAllocator.DEFAULT.buffer(128);
+        final ByteBuf compressedBuffer = UnpooledByteBufAllocator.DEFAULT.buffer(1024);
         final PacketDataSerializer compressedSerializer = new PacketDataSerializer(compressedBuffer);
+
+        // write size of uncompressed data into output
+        compressedSerializer.d(uncompressedSize); // writeVarInt - uncompressed size
 
         final DeflateContext context = DeflateContext.getContext();
         final Deflater deflater = context.getDeflater();
-        final byte[] buffer = context.getBuffer();
 
-        final byte[] deflateInput = new byte[uncompressedSize];
-        uncompressedBuffer.readBytes(deflateInput);
-        compressedSerializer.d(deflateInput.length); // writeVarInt - uncompressed size
+        // compress this shit and see what happens
+        final DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(new ByteBufOutputStream(compressedBuffer), deflater);
 
-        deflater.setInput(deflateInput, 0, uncompressedSize);
-        deflater.finish();
-
-        while (! deflater.finished())
-        {
-            final int deflatedSize = deflater.deflate(buffer);
-            compressedSerializer.writeBytes(buffer, 0, deflatedSize);
-        }
+        uncompressedBuffer.readBytes(deflaterOutputStream, uncompressedSize);
+        deflaterOutputStream.finish();
 
         deflater.reset();
 
         return compressedBuffer;
     }
+
+//    private ByteBuf doCompression(final ByteBuf uncompressedBuffer)
+//    {
+//        final int uncompressedSize = uncompressedBuffer.readableBytes();
+//
+//        final ByteBuf compressedBuffer = UnpooledByteBufAllocator.DEFAULT.buffer(128);
+//        final PacketDataSerializer compressedSerializer = new PacketDataSerializer(compressedBuffer);
+//
+//        final DeflateContext context = DeflateContext.getContext();
+//        final Deflater deflater = context.getDeflater();
+//        final byte[] buffer = context.getBuffer();
+//
+//        final byte[] deflateInput = new byte[uncompressedSize];
+//        uncompressedBuffer.readBytes(deflateInput);
+//        compressedSerializer.d(deflateInput.length); // writeVarInt - uncompressed size
+//
+//        deflater.setInput(deflateInput, 0, uncompressedSize);
+//        deflater.finish();
+//
+//        while (! deflater.finished())
+//        {
+//            final int deflatedSize = deflater.deflate(buffer);
+//            compressedSerializer.writeBytes(buffer, 0, deflatedSize);
+//        }
+//
+//        deflater.reset();
+//
+//        return compressedBuffer;
+//    }
 }
