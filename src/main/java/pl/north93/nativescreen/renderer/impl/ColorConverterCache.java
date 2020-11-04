@@ -2,7 +2,6 @@ package pl.north93.nativescreen.renderer.impl;
 
 import java.awt.*;
 
-import gnu.trove.map.hash.TIntByteHashMap;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import pl.north93.nativescreen.renderer.MapColor;
@@ -11,8 +10,7 @@ import pl.north93.nativescreen.renderer.MapColor;
 @UtilityClass
 class ColorConverterCache
 {
-    private static final byte NO_ENTRY_VALUE = -1;
-    private static final TIntByteHashMap TRANSLATION_CACHE = new TIntByteHashMap(16_777_216, 1, -1, NO_ENTRY_VALUE);
+    private static final byte[] TRANSLATION_CACHE = new byte[16_777_216];
 
     static
     {
@@ -25,7 +23,8 @@ class ColorConverterCache
                     final Color color = new Color(r, g, b);
                     final byte newValue = (byte) MapColor.find(color);
 
-                    TRANSLATION_CACHE.put(color.getRGB(), newValue);
+                    final int index = (- color.getRGB()) - 1;
+                    TRANSLATION_CACHE[index] = newValue;
                 }
             }
         }
@@ -35,6 +34,8 @@ class ColorConverterCache
 
     public static byte translateColor(final int rgbValue)
     {
-        return TRANSLATION_CACHE.get(rgbValue);
+        final int rgbNoAlpha = 0xff000000 | rgbValue;
+        final int index = (- rgbNoAlpha) - 1;
+        return TRANSLATION_CACHE[index];
     }
 }
