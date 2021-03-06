@@ -1,6 +1,7 @@
 package pl.north93.nativescreen.renderer.impl;
 
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 import org.bukkit.entity.Player;
 
@@ -62,16 +63,22 @@ class RendererThreadImpl extends Thread implements IRendererThread
             return;
         }
 
-        final long renderingStart = System.currentTimeMillis();
+        final long renderingStart = System.nanoTime();
         this.doRender(playersInRange, renderer);
-        this.latestFrameTime = System.currentTimeMillis() - renderingStart;
+        this.latestFrameTime = System.nanoTime() - renderingStart;
 
-        final long timeToWait = Math.max(0, this.getTargetMillisecondsPerFrame() - this.latestFrameTime);
-        log.debug("Rendering frame done, took {}ms, waiting {}ms", this.latestFrameTime, timeToWait);
+        final long timeToWait = Math.max(0, this.getTargetNanosecondsPerFrame() - this.latestFrameTime);
+        final long timeToWaitMillis = TimeUnit.NANOSECONDS.toMillis(timeToWait);
 
-        if (timeToWait > 0)
+        if (log.isDebugEnabled())
         {
-            this.wait(timeToWait);
+            final long latestFrameTimeMillis = TimeUnit.NANOSECONDS.toMillis(this.latestFrameTime);
+            log.debug("Rendering frame done, took {}ms, waiting {}ms", latestFrameTimeMillis, timeToWaitMillis);
+        }
+
+        if (timeToWaitMillis > 0)
+        {
+            this.wait(timeToWaitMillis);
         }
     }
 
@@ -114,8 +121,9 @@ class RendererThreadImpl extends Thread implements IRendererThread
     }
 
     @Override
-    public int getTargetMillisecondsPerFrame()
+    public long getTargetNanosecondsPerFrame()
     {
-        return (int) (ONE_SECOND / this.targetFps);
+        final int millisecondsPerFrame = (int) (ONE_SECOND / this.targetFps);
+        return TimeUnit.MILLISECONDS.toNanos(millisecondsPerFrame);
     }
 }

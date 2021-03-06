@@ -21,7 +21,7 @@ public interface IRendererThread
 
     void setTargetFps(int targetFps);
 
-    int getTargetMillisecondsPerFrame();
+    long getTargetNanosecondsPerFrame();
 
     long getLatestFrameTime();
 }

@@ -7,6 +7,7 @@ import static pl.north93.nativescreen.utils.MetadataUtils.setMetadata;
 import net.minecraft.server.v1_12_R1.NetworkManager;
 
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -37,12 +38,18 @@ public class MinecraftInputGrabber implements Listener
         return isGrabbed != null && isGrabbed;
     }
 
-    public void grabPlayer(final Player player)
+    public boolean grabPlayer(final Player player)
     {
         setMetadata(player, "isGrabbed", true);
 
         // todo fetch screen&vehicle data and set proper yaw&pitch
         final Entity vehicle = player.getVehicle();
+        if (vehicle == null)
+        {
+            return false;
+        }
+
+        player.leaveVehicle();
 
         final Location location = player.getLocation();
         location.setYaw(0);
@@ -50,6 +57,19 @@ public class MinecraftInputGrabber implements Listener
 
         player.teleport(location);
         vehicle.addPassenger(player);
+
+        final CraftEntity craftEntity = (CraftEntity) vehicle;
+        craftEntity.getHandle().setPosition(79.5, 7.75, 466.5);
+        craftEntity.getHandle().yaw = 90;
+        craftEntity.getHandle().pitch = 0;
+
+        vehicle.setGravity(false);
+        return true;
+    }
+
+    public void unGrabPlayer(final Player player)
+    {
+        setMetadata(player, "isGrabbed", false);
     }
 
     @EventHandler
