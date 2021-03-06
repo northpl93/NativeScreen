@@ -1,10 +1,10 @@
 plugins {
-    id 'io.franzbecker.gradle-lombok' version '1.14'
+    id "io.freefair.lombok" version "5.3.0"
     id 'com.github.johnrengelman.shadow' version '4.0.3'
 }
 
 apply plugin: 'java'
-apply plugin: 'io.franzbecker.gradle-lombok'
+apply plugin: 'io.freefair.lombok'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 allprojects {
@@ -29,11 +29,6 @@ dependencies {
 
     compile 'net.java.dev.jna:jna:4.4.0'
     compile 'net.java.dev.jna:jna-platform:4.4.0'
-}
-
-lombok {
-    // Manually set lombok version because default one doesnt't work on Java 11
-    version = "1.18.4"
 }
 
 jar {
