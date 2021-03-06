@@ -1,6 +1,7 @@
 package pl.north93.nativescreen.renderer.impl;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -72,17 +73,16 @@ class MapImpl implements IMap
     }
 
     /**
-     * Zwraca liste graczy sledzacych ta mape.
+     * Returns list of players tracking this map.
      *
-     * @return lista graczy sledzacych ta mape.
+     * @return list of players tracking this map.
      */
     public Collection<Player> getTrackingPlayers()
     {
         return this.getNmsEntity().map(nmsEntity ->
         {
             final EntityTrackerEntry trackerEntry = EntityTrackerHelper.getTrackerEntry(nmsEntity);
-            // java.util.ConcurrentModificationException: null
-            return trackerEntry.trackedPlayers.stream();
+            return new HashSet<>(trackerEntry.trackedPlayers).stream();
         }).orElseGet(Stream::empty).map(EntityPlayer::getBukkitEntity).collect(Collectors.toList());
     }
 
