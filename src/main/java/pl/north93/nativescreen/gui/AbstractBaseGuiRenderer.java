@@ -3,6 +3,7 @@ package pl.north93.nativescreen.gui;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
+import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
 import pl.north93.nativescreen.input.Key;
@@ -56,7 +57,7 @@ public abstract class AbstractBaseGuiRenderer implements IMapRenderer, Navigatio
         final int width = bufferedImage.getWidth();
         final int height = bufferedImage.getHeight();
         final int targetFps = board.getRendererThread().getTargetFps();
-        final long latestFrameTime = board.getRendererThread().getLatestFrameTime();
+        final long latestFrameTime = TimeUnit.NANOSECONDS.toMillis(board.getRendererThread().getLatestFrameTime());
         final String text = MessageFormat.format("{0} {1}x{2} TFPS: {3} LFT: {4}ms", board.getIdentifier(), width, height, targetFps, latestFrameTime);
 
         final int textWidth = graphics.getFontMetrics().stringWidth(text);
