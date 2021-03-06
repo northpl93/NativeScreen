@@ -10,6 +10,8 @@ commands:
     description: Changes renderer of specified board to NativeWindowRenderer.
   setfullscreenrenderer:
     description: Changes renderer of specified board to FullScreenRenderer.
+  setrandomcolorrenderer:
+    description: Changes renderer of specified board to RandomColorRenderer.
 
   # General rendering commands
   settargetfps:

@@ -76,7 +76,7 @@ class PlayerMapData
         return container.getServerCanvas() != null;
     }
 
-    public void uploadServerCanvasToClient(IMapUploader mapUploader, final MapImpl map)
+    public void uploadServerCanvasToClient(final IMapUploader mapUploader, final MapImpl map)
     {
         final MapContainer container = this.getOrComputeContainer(map);
         // delegujemy wyslanie pakietu
