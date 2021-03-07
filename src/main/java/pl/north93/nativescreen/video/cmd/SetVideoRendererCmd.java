@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import pl.north93.nativescreen.MainPlugin;
 import pl.north93.nativescreen.renderer.IBoard;
-import pl.north93.nativescreen.video.TestVideoRenderer;
+import pl.north93.nativescreen.video.VideoRenderer;
 
 public class SetVideoRendererCmd implements CommandExecutor
 {
@@ -38,7 +38,7 @@ public class SetVideoRendererCmd implements CommandExecutor
         try
         {
             final String videoName = StringUtils.join(args, ' ', 1, args.length);
-            board.setRenderer(new TestVideoRenderer(videoName));
+            board.setRenderer(new VideoRenderer(videoName));
 
             player.sendMessage(ChatColor.GREEN + "Changed renderer to TestVideoRenderer");
             player.sendMessage(ChatColor.GREEN + "Playing " + videoName);
