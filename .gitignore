@@ -15,6 +15,7 @@
 hs_err_pid*
 .gradle
 /build/
+/out/
 gradle-app.setting
 local.properties
 !gradle-wrapper.jar
