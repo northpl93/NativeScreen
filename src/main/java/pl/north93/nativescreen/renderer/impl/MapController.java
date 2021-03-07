@@ -1,13 +1,10 @@
 package pl.north93.nativescreen.renderer.impl;
 
-import static pl.north93.nativescreen.utils.MetadataUtils.deleteMetadata;
 import static pl.north93.nativescreen.utils.MetadataUtils.getMetadata;
-import static pl.north93.nativescreen.utils.MetadataUtils.getMetadataOrCompute;
 import static pl.north93.nativescreen.utils.MetadataUtils.setMetadata;
 
 
-import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.Collection;
 
 import net.minecraft.server.v1_12_R1.EntityPlayer;
 
@@ -36,24 +33,14 @@ import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
     {
         map.addTracingPlayer(player);
 
-        final PlayerMapData playerMapData = this.getOrComputePlayerMapData(player);
-        final int mapId = playerMapData.getMapId(map);
-
         // put map into ItemFrame client-side
-        this.uploadFilledMapItem(player, map.getFrameEntityId(), mapId);
+        this.uploadFilledMapItem(player, map.getFrameEntityId(), map.getMapId());
 
         // wake up the renderer thread, in case if it was paused
         final RendererThreadImpl rendererThread = map.getBoard().getRendererThread();
         rendererThread.wakeup();
 
-        if (playerMapData.isClientCanvasMatchesServer(map))
-        {
-            // client-side canvas matches server-side canvas,
-            // so we don't have to upload canvas to the client
-            return;
-        }
-
-        playerMapData.uploadServerCanvasToClient(this.mapUploader, map);
+        // todo send latestCanvas to player?
     }
 
     private void uploadFilledMapItem(final Player player, final int frameEntityId, final int mapId)
@@ -69,12 +56,7 @@ import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
         channel.writeAndFlush(helper.complete());
     }
 
-    public void pushNewCanvasToBoardForPlayer(final Player player, final BoardImpl board, final MapCanvasImpl mapCanvas)
-    {
-        this.getPlayerMapData(player).ifPresent(playerMapData -> this.doPushNewCanvasToBoardForPlayer(playerMapData, board, mapCanvas));
-    }
-
-    private void doPushNewCanvasToBoardForPlayer(final PlayerMapData playerMapData, final BoardImpl board, final MapCanvasImpl mapCanvas)
+    public void pushNewCanvasToAudience(final Collection<Player> players, final BoardImpl board, final MapCanvasImpl mapCanvas)
     {
         int notUploaded = 0;
         for (int i = 0; i < board.getWidth(); i++)
@@ -84,42 +66,20 @@ import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
                 final MapCanvasImpl subMapCanvas = mapCanvas.getSubMapCanvas(i, j);
                 final MapImpl map = board.getMap(i, j);
 
-                final MapContainer mapContainer = playerMapData.getOrComputeContainer(map);
-                mapContainer.setServerCanvas(subMapCanvas);
-
-                if (playerMapData.isClientCanvasMatchesServer(map))
+                if (map.isCanvasSameAsLatest(subMapCanvas))
                 {
                     notUploaded++;
                     continue;
                 }
 
-                if (playerMapData.isMapVisible(map))
-                {
-                    playerMapData.uploadServerCanvasToClient(this.mapUploader, map);
-                }
+                map.updateCanvas(subMapCanvas);
+                this.mapUploader.uploadMapToAudience(players, map, subMapCanvas);
             }
         }
 
         final double total = board.getHeight() * board.getWidth();
         final double percent = notUploaded / total * 100;
         log.debug("Skipped uploading of {}% maps", percent);
-    }
-
-    public PlayerMapData getOrComputePlayerMapData(final Player player)
-    {
-        final Supplier<PlayerMapData> defaultValue = () -> new PlayerMapData(player);
-        return getMetadataOrCompute(player, "PlayerMapData", defaultValue);
-    }
-
-    public Optional<PlayerMapData> getPlayerMapData(final Player player)
-    {
-        return Optional.ofNullable(getMetadata(player, "PlayerMapData"));
-    }
-
-    public void deletePlayerMapData(final Player player)
-    {
-        deleteMetadata(player, "PlayerMapData");
-        log.info("Deleted map metadata of player {}", player.getName());
     }
 
     /*default*/ MapImpl getMapFromEntity(final org.bukkit.entity.Entity entity)

@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import pl.north93.nativescreen.MainPlugin;
 
 /**
- * Utilsy do Bukkitowego {@link org.bukkit.metadata.Metadatable}.
+ * Various utils related to {@link org.bukkit.metadata.Metadatable}.
  */
 public final class MetadataUtils
 {

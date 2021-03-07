@@ -1,5 +1,6 @@
 package pl.north93.nativescreen.renderer.compressor.impl;
 
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 
 import org.bukkit.Bukkit;
@@ -31,8 +32,8 @@ public class PacketCompressorImpl implements IPacketCompressor
     }
 
     @Override
-    public void sendPacket(final Channel channel, final ICompressablePacket packet)
+    public void broadcastPacket(final Collection<Channel> channels, final ICompressablePacket packet)
     {
-        this.executor.submit(new PacketCompressTask(channel, packet));
+        this.executor.submit(new PacketCompressTask(channels, packet));
     }
 }

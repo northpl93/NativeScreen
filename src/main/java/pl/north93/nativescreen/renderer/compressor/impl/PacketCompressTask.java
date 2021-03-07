@@ -1,5 +1,6 @@
 package pl.north93.nativescreen.renderer.compressor.impl;
 
+import java.util.Collection;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
@@ -20,7 +21,7 @@ import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
 @AllArgsConstructor
 /*default*/ final class PacketCompressTask implements Runnable
 {
-    private final Channel channel;
+    private final Collection<Channel> channels;
     private final ICompressablePacket compressablePacket;
 
     @Override
@@ -31,7 +32,10 @@ import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
             final ByteBuf compressedData = this.preparePacket();
 
             final CompressedPacket compressedPacket = new CompressedPacket(compressedData);
-            this.channel.writeAndFlush(compressedPacket);
+            for (final Channel channel : this.channels)
+            {
+                channel.writeAndFlush(compressedPacket);
+            }
         }
         catch (final Exception e)
         {

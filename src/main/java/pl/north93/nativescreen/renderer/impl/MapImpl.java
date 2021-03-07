@@ -19,19 +19,29 @@ import pl.north93.nativescreen.utils.MetadataUtils;
 @ToString(of = {"frameId", "itemFrame"})
 class MapImpl implements IMap
 {
+    private static short globalCounter = 0;
     @Getter
     private final BoardImpl board;
+    private final short mapId;
     private final UUID frameId;
     private final Set<Player> trackingPlayers;
+    private MapCanvasImpl latestCanvas;
     private ItemFrame itemFrame;
 
     public MapImpl(final MapController controller, final BoardImpl board, final ItemFrame itemFrame)
     {
         this.board = board;
+        this.mapId = globalCounter++;
         this.frameId = itemFrame.getUniqueId();
         this.trackingPlayers = new ConcurrentSet<>();
         this.itemFrame = itemFrame;
         controller.updateMapInEntity(itemFrame, this);
+    }
+
+    @Override
+    public short getMapId()
+    {
+        return this.mapId;
     }
 
     /**
@@ -45,13 +55,7 @@ class MapImpl implements IMap
         return this.getItemFrame().map(ItemFrame::getEntityId).orElse(- 1);
     }
 
-    /**
-     * Checks does this map is tracking specified player.
-     * In other words, does the player see the map.
-     *
-     * @param player Player who we are checking.
-     * @return True if the player can see the map.
-     */
+    @Override
     public boolean isTrackedBy(final Player player)
     {
         return this.trackingPlayers.contains(player);
@@ -71,6 +75,16 @@ class MapImpl implements IMap
         {
             this.board.removeTrackingPlayer(player);
         }
+    }
+
+    public void updateCanvas(final MapCanvasImpl newCanvas)
+    {
+        this.latestCanvas = newCanvas;
+    }
+
+    public boolean isCanvasSameAsLatest(final MapCanvasImpl newCanvas)
+    {
+        return newCanvas.equals(this.latestCanvas);
     }
 
     private Optional<ItemFrame> getItemFrame()

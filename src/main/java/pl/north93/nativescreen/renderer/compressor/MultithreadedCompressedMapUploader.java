@@ -1,9 +1,10 @@
 package pl.north93.nativescreen.renderer.compressor;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import net.minecraft.server.v1_12_R1.EntityPlayer;
+import java.util.stream.Collectors;
 
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -11,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import io.netty.channel.Channel;
 import lombok.ToString;
+import pl.north93.nativescreen.renderer.IMap;
 import pl.north93.nativescreen.renderer.IMapCanvasDirectAccess;
 import pl.north93.nativescreen.renderer.IMapUploader;
 import pl.north93.nativescreen.renderer.compressor.impl.PacketCompressorImpl;
@@ -35,14 +37,16 @@ public class MultithreadedCompressedMapUploader implements IMapUploader
     }
 
     @Override
-    public void uploadMapToPlayer(final Player player, final int mapId, final IMapCanvasDirectAccess newCanvas)
+    public void uploadMapToAudience(final Collection<Player> audience, final IMap map, final IMapCanvasDirectAccess newCanvas)
     {
-        final CompressedMapPacket compressedMapPacket = new CompressedMapPacket(mapId, newCanvas);
+        final CompressedMapPacket compressedMapPacket = new CompressedMapPacket(map.getMapId(), newCanvas);
 
-        final CraftPlayer craftPlayer = (CraftPlayer) player;
-        final EntityPlayer entityPlayer = craftPlayer.getHandle();
+        final List<Channel> channels = audience.stream().map(player ->
+        {
+            final CraftPlayer craftPlayer = (CraftPlayer) player;
+            return craftPlayer.getHandle().playerConnection.networkManager.channel;
+        }).collect(Collectors.toList());
 
-        final Channel channel = entityPlayer.playerConnection.networkManager.channel;
-        this.packetCompressor.sendPacket(channel, compressedMapPacket);
+        this.packetCompressor.broadcastPacket(channels, compressedMapPacket);
     }
 }

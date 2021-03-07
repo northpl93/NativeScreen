@@ -89,10 +89,7 @@ class RendererThreadImpl extends Thread implements IRendererThread
         final MapCanvasImpl canvas = MapCanvasImpl.createFromMaps(width, height);
         renderer.render(this.assignedBoard, canvas);
 
-        for (final Player player : playersInRange)
-        {
-            this.mapController.pushNewCanvasToBoardForPlayer(player, this.assignedBoard, canvas);
-        }
+        this.mapController.pushNewCanvasToAudience(playersInRange, this.assignedBoard, canvas);
     }
 
     @Override

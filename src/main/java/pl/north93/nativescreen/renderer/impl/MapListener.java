@@ -8,10 +8,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.hanging.HangingBreakEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
 import lombok.ToString;
@@ -61,26 +59,6 @@ public class MapListener implements Listener
 
         // make sure we don't create any memory leaks
         this.mapManager.unTrackPlayerFromAllMaps(player);
-        this.mapController.deletePlayerMapData(player);
-    }
-
-    @EventHandler
-    public void resetCanvasesWhenRespawn(final PlayerRespawnEvent event)
-    {
-        final PlayerMapData data = this.mapController.getOrComputePlayerMapData(event.getPlayer());
-
-        // Respawn u klienta powoduje zresetowanie wszystkich zcachowanych kanw,
-        // dlatego my robimy to samo na serwerze.
-        data.resetAllClientSideCanvases();
-    }
-
-    @EventHandler
-    public void resetCanvasesWhenWorldSwitch(final PlayerChangedWorldEvent event)
-    {
-        final PlayerMapData data = this.mapController.getOrComputePlayerMapData(event.getPlayer());
-
-        // Zmiana swiata u klienta powoduje dziwne zachowanie i niewyswietlanie map.
-        data.resetAllClientSideCanvases();
     }
 
     @EventHandler

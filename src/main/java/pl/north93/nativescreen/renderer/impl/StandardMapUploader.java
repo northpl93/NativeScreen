@@ -1,5 +1,7 @@
 package pl.north93.nativescreen.renderer.impl;
 
+import java.util.Collection;
+
 import net.minecraft.server.v1_12_R1.PacketDataSerializer;
 
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
@@ -8,6 +10,7 @@ import org.bukkit.entity.Player;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
+import pl.north93.nativescreen.renderer.IMap;
 import pl.north93.nativescreen.renderer.IMapCanvasDirectAccess;
 import pl.north93.nativescreen.renderer.IMapUploader;
 
@@ -18,15 +21,22 @@ public final class StandardMapUploader implements IMapUploader
     private static final int MAP_SIZE = 128;
 
     @Override
-    public void uploadMapToPlayer(final Player player, final int mapId, final IMapCanvasDirectAccess newCanvas)
+    public void uploadMapToAudience(final Collection<Player> audience, final IMap map, final IMapCanvasDirectAccess newCanvas)
     {
-        final CraftPlayer craftPlayer = ((CraftPlayer) player);
-
         final ByteBuf buffer = UnpooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE, BUFFER_SIZE);
-        writeMapPacket(buffer, mapId, newCanvas);
+        writeMapPacket(buffer, map.getMapId(), newCanvas);
 
-        final Channel channel = craftPlayer.getHandle().playerConnection.networkManager.channel;
-        channel.writeAndFlush(buffer);
+        for (final Player player : audience)
+        {
+            if (! map.isTrackedBy(player))
+            {
+                continue;
+            }
+
+            final CraftPlayer craftPlayer = (CraftPlayer) player;
+            final Channel channel = craftPlayer.getHandle().playerConnection.networkManager.channel;
+            channel.writeAndFlush(buffer);
+        }
     }
 
     public static void writeMapPacket(final ByteBuf buffer, final int mapId, final IMapCanvasDirectAccess newCanvas)

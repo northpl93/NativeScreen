@@ -1,5 +1,7 @@
 package pl.north93.nativescreen.renderer.compressor;
 
+import java.util.Collection;
+
 import io.netty.channel.Channel;
 
 /**
@@ -9,5 +11,5 @@ public interface IPacketCompressor
 {
     void injectChannel(Channel channel);
 
-    void sendPacket(Channel channel, ICompressablePacket packet);
+    void broadcastPacket(Collection<Channel> channels, ICompressablePacket packet);
 }
