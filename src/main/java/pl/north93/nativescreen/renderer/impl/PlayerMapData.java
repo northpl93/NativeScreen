@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import pl.north93.nativescreen.renderer.IMapCanvas;
+import pl.north93.nativescreen.renderer.IMapCanvasDirectAccess;
 import pl.north93.nativescreen.renderer.IMapUploader;
 
 /**
@@ -54,13 +54,13 @@ class PlayerMapData
     {
         final MapContainer container = this.getOrComputeContainer(map);
 
-        final IMapCanvas serverCanvas = container.getServerCanvas();
+        final IMapCanvasDirectAccess serverCanvas = container.getServerCanvas();
         if (serverCanvas == null)
         {
             return true; // na pewno?
         }
 
-        final IMapCanvas clientCanvas = container.getClientCanvas();
+        final IMapCanvasDirectAccess clientCanvas = container.getClientCanvas();
         if (clientCanvas == null)
         {
             return false;
@@ -70,27 +70,22 @@ class PlayerMapData
         return serverCanvas.equals(clientCanvas);
     }
 
-    public boolean hasAnyServerCanvas(final MapImpl map)
-    {
-        final MapContainer container = this.getOrComputeContainer(map);
-        return container.getServerCanvas() != null;
-    }
-
     public void uploadServerCanvasToClient(final IMapUploader mapUploader, final MapImpl map)
     {
         final MapContainer container = this.getOrComputeContainer(map);
-        // delegujemy wyslanie pakietu
+
         mapUploader.uploadMapToPlayer(this.player, container.getId(), container.getServerCanvas());
-        // zapisujemy nowy canvas widoczny u klienta
         container.setClientCanvas(container.getServerCanvas());
     }
 
     public void resetAllClientSideCanvases()
     {
-        // usuwamy aktualny stan wszystkich kanw u klienta
-        for (final MapContainer container : this.mapping.values())
+        synchronized (this.mapping)
         {
-            container.setClientCanvas(null);
+            for (final MapContainer container : this.mapping.values())
+            {
+                container.setClientCanvas(null);
+            }
         }
     }
 
@@ -101,13 +96,16 @@ class PlayerMapData
 
     private MapContainer generateNewContainer(final MapImpl map)
     {
-        final Collection<Integer> values = this.mapping.values().stream().map(MapContainer::getId).collect(Collectors.toSet());
-        do
+        synchronized (this.mapping)
         {
-            this.latestId = (++this.latestId) % Short.MAX_VALUE;
-        } while (values.contains(this.latestId));
+            final Collection<Integer> values = this.mapping.values().stream().map(MapContainer::getId).collect(Collectors.toSet());
+            do
+            {
+                this.latestId = (++ this.latestId) % Short.MAX_VALUE;
+            } while (values.contains(this.latestId));
 
-        return new MapContainer(this.latestId);
+            return new MapContainer(this.latestId);
+        }
     }
 }
 
@@ -116,9 +114,9 @@ class PlayerMapData
 @ToString
 final class MapContainer
 {
-    private final int        id;
-    private       IMapCanvas serverCanvas;
-    private       IMapCanvas clientCanvas;
+    private final int id;
+    private IMapCanvasDirectAccess serverCanvas;
+    private IMapCanvasDirectAccess clientCanvas;
 
     public MapContainer(final int id)
     {

@@ -40,7 +40,7 @@ public class NativeWindowRenderer implements IMapRenderer, NavigationOutputHandl
 
         final int startX = this.getWindowStartX(canvas, image);
         final int startY = this.getWindowStartY(canvas, image);
-        canvas.putImage(startX, startY, image);
+        canvas.doDirectAccess(new NativeImageWriter(image, startX, startY));
 
         this.cursorRendererComponent.render(board, canvas);
     }

@@ -3,7 +3,7 @@ package pl.north93.nativescreen.renderer.compressor.packet;
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
-import pl.north93.nativescreen.renderer.IMapCanvas;
+import pl.north93.nativescreen.renderer.IMapCanvasDirectAccess;
 import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
 import pl.north93.nativescreen.renderer.impl.StandardMapUploader;
 
@@ -12,7 +12,7 @@ import pl.north93.nativescreen.renderer.impl.StandardMapUploader;
 public class CompressedMapPacket implements ICompressablePacket
 {
     private final int mapId;
-    private final IMapCanvas mapCanvas;
+    private final IMapCanvasDirectAccess mapCanvas;
 
     @Override
     public int predictBufferSize()

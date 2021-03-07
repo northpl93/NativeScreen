@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
-import pl.north93.nativescreen.renderer.IMapCanvas;
+import pl.north93.nativescreen.renderer.IMapCanvasDirectAccess;
 import pl.north93.nativescreen.renderer.IMapUploader;
 
 public final class StandardMapUploader implements IMapUploader
@@ -18,7 +18,7 @@ public final class StandardMapUploader implements IMapUploader
     private static final int MAP_SIZE = 128;
 
     @Override
-    public void uploadMapToPlayer(final Player player, final int mapId, final IMapCanvas newCanvas)
+    public void uploadMapToPlayer(final Player player, final int mapId, final IMapCanvasDirectAccess newCanvas)
     {
         final CraftPlayer craftPlayer = ((CraftPlayer) player);
 
@@ -29,7 +29,7 @@ public final class StandardMapUploader implements IMapUploader
         channel.writeAndFlush(buffer);
     }
 
-    public static void writeMapPacket(final ByteBuf buffer, final int mapId, final IMapCanvas newCanvas)
+    public static void writeMapPacket(final ByteBuf buffer, final int mapId, final IMapCanvasDirectAccess newCanvas)
     {
         final PacketDataSerializer serializer = new PacketDataSerializer(buffer);
 

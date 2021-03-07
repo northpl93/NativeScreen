@@ -7,5 +7,5 @@ import org.bukkit.entity.Player;
  */
 public interface IMapUploader
 {
-    void uploadMapToPlayer(Player player, int mapId, IMapCanvas newCanvas);
+    void uploadMapToPlayer(Player player, int mapId, IMapCanvasDirectAccess newCanvas);
 }

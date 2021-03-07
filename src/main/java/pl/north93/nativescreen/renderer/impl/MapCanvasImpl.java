@@ -12,11 +12,12 @@ import org.bukkit.map.MapPalette;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import pl.north93.nativescreen.renderer.IMapCanvas;
-import pl.north93.nativescreen.winapi.NativeImage;
+import pl.north93.nativescreen.renderer.IMapCanvasDirectAccess;
+import pl.north93.nativescreen.renderer.IMapCanvasDirectAccessor;
 
 @Log4j2
 @ToString(of = {"xSize", "ySize"})
-final class MapCanvasImpl implements IMapCanvas
+final class MapCanvasImpl implements IMapCanvas, IMapCanvasDirectAccess
 {
     private static final int SINGLE_MAP_SIDE = 128;
     private final int xSize, ySize;
@@ -61,6 +62,19 @@ final class MapCanvasImpl implements IMapCanvas
     }
 
     @Override
+    public void setPixelUnsafe(final int x, final int y, final byte color)
+    {
+        this.buffer[this.calculateIndex(x, y)] = color;
+    }
+
+    @Override
+    public void setPixelUnsafeRGB(final int x, final int y, final int rgbData)
+    {
+        final byte color = ColorConverterCache.translateColor(rgbData);
+        this.buffer[this.calculateIndex(x, y)] = color;
+    }
+
+    @Override
     public void putImage(final int modifierX, final int modifierY, final BufferedImage image)
     {
         final int width = image.getWidth();
@@ -84,25 +98,6 @@ final class MapCanvasImpl implements IMapCanvas
     }
 
     @Override
-    public void putImage(final int modifierX, final int modifierY, final NativeImage nativeImage)
-    {
-        final int maxX = nativeImage.getWidth() + modifierX;
-        final int maxY = nativeImage.getHeight() + modifierY;
-
-        int nativeIndex = 0;
-        final int[] nativeImageData = nativeImage.getData();
-
-        for (int y = modifierY; y < maxY; y++)
-        {
-            for (int x = modifierX; x < maxX; x++)
-            {
-                final byte color = ColorConverterCache.translateColor(nativeImageData[nativeIndex++]);
-                this.setPixel(x, y, color);
-            }
-        }
-    }
-
-    @Override
     public void putCanvas(final int x, final int y, final IMapCanvas canvas)
     {
         final MapCanvasImpl impl = (MapCanvasImpl) canvas;
@@ -117,6 +112,11 @@ final class MapCanvasImpl implements IMapCanvas
         }
     }
 
+    @Override
+    public void doDirectAccess(final IMapCanvasDirectAccessor directAccessor)
+    {
+        directAccessor.doDirectAccess(this);
+    }
 
     @Override
     public void fill(final byte color)
@@ -134,6 +134,12 @@ final class MapCanvasImpl implements IMapCanvas
     public byte[] getBytes()
     {
         return this.buffer;
+    }
+
+    @Override
+    public int calculateIndex(final int x, final int y)
+    {
+        return y * this.xSize + x;
     }
 
     public MapCanvasImpl getSubMapCanvas(final int xMap, final int yMap)
@@ -175,9 +181,8 @@ final class MapCanvasImpl implements IMapCanvas
         }
     }
 
-    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
-    public IMapCanvas clone()
+    public IMapCanvas copy()
     {
         final byte[] bytes = new byte[this.buffer.length];
         System.arraycopy(this.buffer, 0, bytes, 0, this.buffer.length);
@@ -205,10 +210,5 @@ final class MapCanvasImpl implements IMapCanvas
     public int hashCode()
     {
         return Arrays.hashCode(this.buffer);
-    }
-
-    private int calculateIndex(final int x, final int y)
-    {
-        return y * this.xSize + x;
     }
 }

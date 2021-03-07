@@ -11,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import io.netty.channel.Channel;
 import lombok.ToString;
-import pl.north93.nativescreen.renderer.IMapCanvas;
+import pl.north93.nativescreen.renderer.IMapCanvasDirectAccess;
 import pl.north93.nativescreen.renderer.IMapUploader;
 import pl.north93.nativescreen.renderer.compressor.impl.PacketCompressorImpl;
 import pl.north93.nativescreen.renderer.compressor.packet.CompressedMapPacket;
@@ -35,7 +35,7 @@ public class MultithreadedCompressedMapUploader implements IMapUploader
     }
 
     @Override
-    public void uploadMapToPlayer(final Player player, final int mapId, final IMapCanvas newCanvas)
+    public void uploadMapToPlayer(final Player player, final int mapId, final IMapCanvasDirectAccess newCanvas)
     {
         final CompressedMapPacket compressedMapPacket = new CompressedMapPacket(mapId, newCanvas);
 

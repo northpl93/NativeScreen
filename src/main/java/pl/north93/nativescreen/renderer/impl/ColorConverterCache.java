@@ -10,15 +10,16 @@ import pl.north93.nativescreen.renderer.MapColor;
 @UtilityClass
 class ColorConverterCache
 {
-    private static final byte[] TRANSLATION_CACHE = new byte[16_777_216];
+    private static final int COLOR_RANGE = 256;
+    private static final byte[] TRANSLATION_CACHE = new byte[COLOR_RANGE * COLOR_RANGE * COLOR_RANGE];
 
     static
     {
-        for (int r = 0; r < 256; r++)
+        for (int r = 0; r < COLOR_RANGE; r++)
         {
-            for (int g = 0; g < 256; g++)
+            for (int g = 0; g < COLOR_RANGE; g++)
             {
-                for (int b = 0; b < 256; b++)
+                for (int b = 0; b < COLOR_RANGE; b++)
                 {
                     final Color color = new Color(r, g, b);
                     final byte newValue = (byte) MapColor.find(color);

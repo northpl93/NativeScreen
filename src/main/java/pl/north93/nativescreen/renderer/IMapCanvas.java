@@ -3,9 +3,7 @@ package pl.north93.nativescreen.renderer;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
-import pl.north93.nativescreen.winapi.NativeImage;
-
-public interface IMapCanvas extends Cloneable
+public interface IMapCanvas
 {
     int getHeight();
 
@@ -15,19 +13,17 @@ public interface IMapCanvas extends Cloneable
 
     void putImage(int x, int y, BufferedImage image);
 
-    void putImage(int x, int y, NativeImage nativeImage);
-
     void putCanvas(int x, int y, IMapCanvas canvas);
+
+    void doDirectAccess(IMapCanvasDirectAccessor directAccessor);
 
     void fill(byte color);
 
     byte getPixel(int x, int y);
 
-    byte[] getBytes();
-
     void writeDebugImage(File location);
 
-    IMapCanvas clone();
+    IMapCanvas copy();
 
     boolean equals(Object other);
 }

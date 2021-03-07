@@ -27,6 +27,7 @@ class RendererThreadImpl extends Thread implements IRendererThread
 
     public RendererThreadImpl(final MapController mapController, final BoardImpl assignedBoard)
     {
+        super("Renderer thread " + assignedBoard.getIdentifier());
         this.mapController = mapController;
         this.assignedBoard = assignedBoard;
     }
@@ -57,15 +58,13 @@ class RendererThreadImpl extends Thread implements IRendererThread
             this.wait();
         }
 
-        final IMapRenderer renderer = this.assignedBoard.getRenderer();
-        if (renderer == null)
+        final RendererHolder rendererHolder = this.assignedBoard.getRendererHolder();
+        try (final InProgressRenderer renderer = rendererHolder.startRendering())
         {
-            return;
+            final long renderingStart = System.nanoTime();
+            this.doRender(playersInRange, renderer);
+            this.latestFrameTime = System.nanoTime() - renderingStart;
         }
-
-        final long renderingStart = System.nanoTime();
-        this.doRender(playersInRange, renderer);
-        this.latestFrameTime = System.nanoTime() - renderingStart;
 
         final long timeToWait = Math.max(0, this.getTargetNanosecondsPerFrame() - this.latestFrameTime);
         final long timeToWaitMillis = TimeUnit.NANOSECONDS.toMillis(timeToWait);

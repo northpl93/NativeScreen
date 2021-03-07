@@ -1,5 +1,7 @@
 package pl.north93.nativescreen.renderer.impl;
 
+import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,15 +10,17 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import pl.north93.nativescreen.renderer.IBoard;
 import pl.north93.nativescreen.renderer.IMapRenderer;
 
-@ToString(of = {"identifier", "width", "height", "renderer"})
+@Slf4j
+@ToString(of = {"identifier", "width", "height", "rendererHolder"})
 class BoardImpl implements IBoard
 {
     private final Map<Player, Integer> trackingPlayers;
+    private final RendererHolder rendererHolder;
     @Getter
     private final RendererThreadImpl rendererThread;
     @Getter
@@ -26,12 +30,11 @@ class BoardImpl implements IBoard
     @Getter
     private final int width, height;
     private final MapImpl[][] maps;
-    @Getter @Setter
-    private IMapRenderer renderer;
 
     public BoardImpl(final MapController mapController, final String identifier, final int width, final int height, final MapImpl[][] maps)
     {
         this.trackingPlayers = new ConcurrentHashMap<>();
+        this.rendererHolder = new RendererHolder();
         this.rendererThread = new RendererThreadImpl(mapController, this);
         this.mapController = mapController;
         this.identifier = identifier;
@@ -51,6 +54,24 @@ class BoardImpl implements IBoard
     public Collection<Player> getPlayersInRange()
     {
         return this.trackingPlayers.keySet();
+    }
+
+    @Override
+    public void setRenderer(final IMapRenderer renderer)
+    {
+        this.rendererHolder.changeRenderer(renderer);
+    }
+
+    public RendererHolder getRendererHolder()
+    {
+        return this.rendererHolder;
+    }
+
+    @Nullable
+    @Override
+    public IMapRenderer getRenderer()
+    {
+        return this.rendererHolder.getRenderer();
     }
 
     public void addTrackingPlayer(final Player player)
@@ -117,7 +138,7 @@ class BoardImpl implements IBoard
     public void cleanup()
     {
         this.rendererThread.end();
-        this.renderer = null;
+        this.setRenderer(null);
         this.trackingPlayers.clear();
         for (int x = 0; x < this.width; x++)
         {
