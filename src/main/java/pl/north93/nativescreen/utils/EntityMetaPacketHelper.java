@@ -12,20 +12,20 @@ import io.netty.buffer.UnpooledByteBufAllocator;
 import lombok.ToString;
 
 /**
- * Klasa pomocnicza sluzaca do recznego wysylania danych
- * zawartych w pakiecie PacketPlayOutEntityMetadata.
+ * Our implementation of PacketPlayOutEntityMetadata, so we don't
+ * have to mess with mojang's DataWatchers.
  */
 @ToString
 public class EntityMetaPacketHelper
 {
-    private final ByteBuf              buffer;
+    private final ByteBuf buffer;
     private final PacketDataSerializer pds;
 
     /**
-     * Tworzy nowa instancje klasy i wprowadza do bufora
-     * dane ID entity.
+     * Creates a new instance of a packet.
+     * It'll write the packet ID and entityId into the internal buffer.
      *
-     * @param entityId ID entity ktorego dotyczy ten pakiet.
+     * @param entityId Entity which should be affected by this packet.
      * @see Entity#getEntityId()
      */
     public EntityMetaPacketHelper(final int entityId)
@@ -33,18 +33,18 @@ public class EntityMetaPacketHelper
         this.buffer = UnpooledByteBufAllocator.DEFAULT.buffer(32);
         this.pds = new PacketDataSerializer(this.buffer);
 
-        this.pds.d(0x3C); // writeVarInt PacketPlayOutEntityMetadata id PAMIETAC ZEBY TU ZMIENIC PRZY AKTUSLIZACJI MINECRAFTA
+        this.pds.d(0x3C); // writeVarInt PacketPlayOutEntityMetadata id REMEMBER TO SYNC IT WITH MOJANG'S ID
         this.pds.d(entityId); // writeVarInt
     }
 
     /**
-     * Dodaje nowe metadane do tej instancji.
-     * Informacje o metadanych najlepiej czerpac z
+     * Adds a new metadata into this packet.
+     * Here is a list of all entity's metadatas:
      * http://wiki.vg/Entities#Entity_Metadata_Format
      *
-     * @param metaId ID danej metadata (Index na wiki.vg)
-     * @param metaType Typ metadany (Type na wiki.vg)
-     * @param value Wartosc ktora ustalamy (zgodna z typem)
+     * @param metaId ID of the metadata (Index on wiki.vg)
+     * @param metaType Type of the metadata (Type on wiki.vg)
+     * @param value New value of the metadata
      */
     public void addMeta(final int metaId, final MetaType metaType, final Object value)
     {
@@ -53,13 +53,11 @@ public class EntityMetaPacketHelper
     }
 
     /**
-     * Zapisuje na koncu bufora informacje o koncu metadanych
-     * i zwraca instancje ByteBufa ktora nalezy pozniej
-     * zamknac!
-     * Nalezy wywolywac ta metode tylko raz, inaczej uzyskamy
-     * uszkodzony pakiet.
+     * Writes "packet end" marker into a internal buffer, and returns the buffer.
+     * Remember to release the buffer obtained from this method.
+     * Calling this method more than once will break the packet.
      *
-     * @return Bufor z gotowym pakietem.
+     * @return Buffer containing the written packet.
      * @see ByteBuf#release()
      */
     public ByteBuf complete()

@@ -9,6 +9,7 @@ import net.minecraft.server.v1_12_R1.DedicatedServer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import lombok.ToString;
@@ -88,6 +89,16 @@ public class MapManagerImpl implements IMapManager
         if (this.boards.remove(boardImpl))
         {
             boardImpl.cleanup();
+        }
+    }
+
+    // iterates over all boards and tells them that they should remove specified player
+    // from tracking lists
+    public void unTrackPlayerFromAllMaps(final Player player)
+    {
+        for (final BoardImpl board : this.boards)
+        {
+            board.unTrackPlayerFromThisBoard(player);
         }
     }
 }

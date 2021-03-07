@@ -1,7 +1,8 @@
 package pl.north93.nativescreen.renderer.impl;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -15,10 +16,11 @@ import pl.north93.nativescreen.renderer.IMapRenderer;
 @ToString(of = {"identifier", "width", "height", "renderer"})
 class BoardImpl implements IBoard
 {
-    @Getter
-    private final MapController mapController;
+    private final Map<Player, Integer> trackingPlayers;
     @Getter
     private final RendererThreadImpl rendererThread;
+    @Getter
+    private final MapController mapController;
     @Getter
     private final String identifier;
     @Getter
@@ -29,6 +31,7 @@ class BoardImpl implements IBoard
 
     public BoardImpl(final MapController mapController, final String identifier, final int width, final int height, final MapImpl[][] maps)
     {
+        this.trackingPlayers = new ConcurrentHashMap<>();
         this.rendererThread = new RendererThreadImpl(mapController, this);
         this.mapController = mapController;
         this.identifier = identifier;
@@ -47,15 +50,29 @@ class BoardImpl implements IBoard
     @Override
     public Collection<Player> getPlayersInRange()
     {
-        final HashSet<Player> players = new HashSet<>();
-        for (final MapImpl[] yMaps : this.maps)
+        return this.trackingPlayers.keySet();
+    }
+
+    public void addTrackingPlayer(final Player player)
+    {
+        this.trackingPlayers.compute(player, (p, trackedMaps) ->
         {
-            for (final MapImpl map : yMaps)
+            return trackedMaps == null ? 1 : trackedMaps + 1;
+        });
+    }
+
+    public void removeTrackingPlayer(final Player player)
+    {
+        this.trackingPlayers.compute(player, (p, trackedMaps) ->
+        {
+            final int newTrackedMaps = trackedMaps == null ? 0 : trackedMaps - 1;
+            if (newTrackedMaps == 0)
             {
-                players.addAll(map.getTrackingPlayers());
+                return null;
             }
-        }
-        return players;
+
+            return newTrackedMaps;
+        });
     }
 
     @Override
@@ -79,14 +96,29 @@ class BoardImpl implements IBoard
         return false;
     }
 
+    public void unTrackPlayerFromThisBoard(final Player player)
+    {
+        for (final MapImpl[] yMaps : this.maps)
+        {
+            for (final MapImpl map : yMaps)
+            {
+                map.removeTracingPlayer(player);
+            }
+        }
+
+        // theoretically calls to removeTracingPlayer should remove player from our map
+        // but to make sure we do this again
+        this.trackingPlayers.remove(player);
+    }
+
     /**
-     * Niszczy ta tablice i upewnia sie, ze juz nie bedzie dalo
-     * sie jej uzyc.
+     * Destroy this board and make sure that this object can't be used again.
      */
     public void cleanup()
     {
         this.rendererThread.end();
         this.renderer = null;
+        this.trackingPlayers.clear();
         for (int x = 0; x < this.width; x++)
         {
             for (int y = 0; y < this.height; y++)

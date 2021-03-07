@@ -4,6 +4,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hanging;
 import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.hanging.HangingBreakEvent;
@@ -15,12 +16,13 @@ import org.bukkit.event.world.WorldUnloadEvent;
 
 import lombok.ToString;
 import pl.north93.northspigot.event.entity.EntityTrackedPlayerEvent;
+import pl.north93.northspigot.event.entity.EntityUnTrackedPlayerEvent;
 
 @ToString(onlyExplicitlyIncluded = true)
 public class MapListener implements Listener
 {
     private final MapManagerImpl mapManager;
-    private final MapController  mapController;
+    private final MapController mapController;
 
     public MapListener(final MapManagerImpl mapManager, final MapController mapController)
     {
@@ -41,10 +43,25 @@ public class MapListener implements Listener
     }
 
     @EventHandler
+    public void handleMapUnTrack(final EntityUnTrackedPlayerEvent event)
+    {
+        final MapImpl map = this.mapController.getMapFromEntity(event.getEntity());
+        if (map == null)
+        {
+            return;
+        }
+
+        map.removeTracingPlayer(event.getPlayer());
+    }
+
+    @EventHandler
     public void deletePlayerMapData(final PlayerQuitEvent event)
     {
-        // nie zajmujemy pamieci i upewniamy sie ze po ponownym wejsciu wszystko bedzie ok
-        this.mapController.deletePlayerMapData(event.getPlayer());
+        final Player player = event.getPlayer();
+
+        // make sure we don't create any memory leaks
+        this.mapManager.unTrackPlayerFromAllMaps(player);
+        this.mapController.deletePlayerMapData(player);
     }
 
     @EventHandler
@@ -109,20 +126,6 @@ public class MapListener implements Listener
             event.setCancelled(true);
         }
     }
-
-//    @PacketHandler
-//    public void onAsyncMapMetadata(final PacketEvent<PacketPlayOutEntityMetadata> event)
-//    {
-//        // system map wysyla entity metadata w ByteBufie wiec ten listener
-//        // tego nie zlapie.
-//        final WrapperPlayOutEntityMetadata wrapper = new WrapperPlayOutEntityMetadata(event.getPacket());
-//
-//        // blokujemy wszystkie Entity Metadata dotyczace naszej ramki
-//        if (this.isEntityBelongsToAnyBoard(wrapper.getEntityId()))
-//        {
-//            event.setCancelled(true);
-//        }
-//    }
 
     private boolean isEntityBelongsToAnyBoard(final int entityId)
     {

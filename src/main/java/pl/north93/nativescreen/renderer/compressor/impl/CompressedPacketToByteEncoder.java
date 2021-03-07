@@ -15,8 +15,14 @@ import io.netty.handler.codec.MessageToByteEncoder;
     protected void encode(final ChannelHandlerContext channelHandlerContext, final CompressedPacket compressedPacket, final ByteBuf byteBuf) throws Exception
     {
         final ByteBuf compressedData = compressedPacket.getCompressedData();
-        byteBuf.writeBytes(compressedData);
 
-        compressedData.release();
+        try
+        {
+            byteBuf.writeBytes(compressedData);
+        }
+        finally
+        {
+            compressedData.release();
+        }
     }
 }

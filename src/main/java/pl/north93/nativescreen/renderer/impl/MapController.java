@@ -34,23 +34,25 @@ import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
 
     public void handlePlayerEnter(final MapImpl map, final Player player)
     {
+        map.addTracingPlayer(player);
+
         final PlayerMapData playerMapData = this.getOrComputePlayerMapData(player);
         final int mapId = playerMapData.getMapId(map);
 
-        // wysylamy do gracza informacje o umieszczeniu mapy w ramce
+        // put map into ItemFrame client-side
         this.uploadFilledMapItem(player, map.getFrameEntityId(), mapId);
 
-        // wybudzamy wątek renderera, na wypadek gdyby był zapauzowany
+        // wake up the renderer thread, in case if it was paused
         final RendererThreadImpl rendererThread = map.getBoard().getRendererThread();
         rendererThread.wakeup();
 
         if (playerMapData.isClientCanvasMatchesServer(map))
         {
-            // canvas bedacy u klienta pasuje do tego na serwerze
+            // client-side canvas matches server-side canvas,
+            // so we don't have to upload canvas to the client
             return;
         }
 
-        // uploadujemy canvas serwera do klienta i ustawiamy go jako aktywny u klienta
         playerMapData.uploadServerCanvasToClient(this.mapUploader, map);
     }
 

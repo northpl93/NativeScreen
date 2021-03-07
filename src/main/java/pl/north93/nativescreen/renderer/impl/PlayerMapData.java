@@ -23,9 +23,9 @@ import pl.north93.nativescreen.renderer.IMapUploader;
 @ToString
 class PlayerMapData
 {
-    private final Player                     player;
+    private final Player player;
     private final Map<MapImpl, MapContainer> mapping;
-    private       int                        latestId;
+    private int latestId;
 
     public PlayerMapData(final Player player)
     {

@@ -1,15 +1,8 @@
 package pl.north93.nativescreen.renderer.impl;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import net.minecraft.server.v1_12_R1.Entity;
-import net.minecraft.server.v1_12_R1.EntityPlayer;
-import net.minecraft.server.v1_12_R1.EntityTrackerEntry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -17,10 +10,10 @@ import org.bukkit.craftbukkit.v1_12_R1.entity.CraftItemFrame;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 
+import io.netty.util.internal.ConcurrentSet;
 import lombok.Getter;
 import lombok.ToString;
 import pl.north93.nativescreen.renderer.IMap;
-import pl.north93.nativescreen.utils.EntityTrackerHelper;
 import pl.north93.nativescreen.utils.MetadataUtils;
 
 @ToString(of = {"frameId", "itemFrame"})
@@ -28,21 +21,24 @@ class MapImpl implements IMap
 {
     @Getter
     private final BoardImpl board;
-    private final UUID      frameId;
-    private       ItemFrame itemFrame;
+    private final UUID frameId;
+    private final Set<Player> trackingPlayers;
+    private ItemFrame itemFrame;
 
     public MapImpl(final MapController controller, final BoardImpl board, final ItemFrame itemFrame)
     {
         this.board = board;
         this.frameId = itemFrame.getUniqueId();
+        this.trackingPlayers = new ConcurrentSet<>();
         this.itemFrame = itemFrame;
         controller.updateMapInEntity(itemFrame, this);
     }
 
     /**
-     * Zwraca ID entity ramki uzywanej przez ta mape.
+     * Returns entity identifier used by this map.
+     * -1 if this map doesn't have spawned entity.
      *
-     * @return ID entity ramki zawierajacej mape.
+     * @return Entity ID of this map.
      */
     public int getFrameEntityId()
     {
@@ -50,40 +46,31 @@ class MapImpl implements IMap
     }
 
     /**
-     * Sprawdza czy ta mapa jest sledzona przez podanego gracza.
-     * Inaczej mowiac czy jest w zasiegu danego gracza.
+     * Checks does this map is tracking specified player.
+     * In other words, does the player see the map.
      *
-     * @param player Gracz ktorego sprawdzamy.
-     * @return True jesli mapa jest widoczna u danego gracza.
+     * @param player Player who we are checking.
+     * @return True if the player can see the map.
      */
     public boolean isTrackedBy(final Player player)
     {
-        return this.getNmsEntity().map(nmsEntity ->
-        {
-            final EntityTrackerEntry trackerEntry = EntityTrackerHelper.getTrackerEntry(nmsEntity);
-            for (final EntityPlayer trackedPlayer : trackerEntry.trackedPlayers)
-            {
-                if (player.equals(trackedPlayer.getBukkitEntity()))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }).orElse(false);
+        return this.trackingPlayers.contains(player);
     }
 
-    /**
-     * Returns list of players tracking this map.
-     *
-     * @return list of players tracking this map.
-     */
-    public Collection<Player> getTrackingPlayers()
+    public void addTracingPlayer(final Player player)
     {
-        return this.getNmsEntity().map(nmsEntity ->
+        if (this.trackingPlayers.add(player))
         {
-            final EntityTrackerEntry trackerEntry = EntityTrackerHelper.getTrackerEntry(nmsEntity);
-            return new HashSet<>(trackerEntry.trackedPlayers).stream();
-        }).orElseGet(Stream::empty).map(EntityPlayer::getBukkitEntity).collect(Collectors.toList());
+            this.board.addTrackingPlayer(player);
+        }
+    }
+
+    public void removeTracingPlayer(final Player player)
+    {
+        if (this.trackingPlayers.remove(player))
+        {
+            this.board.removeTrackingPlayer(player);
+        }
     }
 
     private Optional<ItemFrame> getItemFrame()
@@ -97,13 +84,8 @@ class MapImpl implements IMap
         return Optional.ofNullable(this.itemFrame = newItemFrame);
     }
 
-    private Optional<Entity> getNmsEntity()
-    {
-        return this.getItemFrame().map(EntityTrackerHelper::toNmsEntity);
-    }
-
     /**
-     * Zabija ramke nalezaca do tej mapy.
+     * Kills entity that belongs to this frame.
      */
     public void cleanup()
     {
@@ -117,6 +99,7 @@ class MapImpl implements IMap
 
         this.itemFrame = null;
         itemFrame.getHandle().die();
+        this.trackingPlayers.clear();
     }
 
     @Override

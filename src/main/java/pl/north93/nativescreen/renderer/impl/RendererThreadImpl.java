@@ -16,7 +16,7 @@ import pl.north93.nativescreen.renderer.IRendererThread;
 @ToString(of = {"assignedBoard", "working", "targetFps", "latestFrameTime"})
 class RendererThreadImpl extends Thread implements IRendererThread
 {
-    private static final double ONE_SECOND = 1000D;
+    private static final double ONE_SECOND_NANOS = 1_000_000_000;
     private final MapController mapController;
     private final BoardImpl assignedBoard;
     private boolean working = true;
@@ -123,7 +123,6 @@ class RendererThreadImpl extends Thread implements IRendererThread
     @Override
     public long getTargetNanosecondsPerFrame()
     {
-        final int millisecondsPerFrame = (int) (ONE_SECOND / this.targetFps);
-        return TimeUnit.MILLISECONDS.toNanos(millisecondsPerFrame);
+        return (int) (ONE_SECOND_NANOS / this.targetFps);
     }
 }
