@@ -11,6 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import pl.north93.nativescreen.fullscreen.SetFullScreenRendererCmd;
 import pl.north93.nativescreen.fullscreen.SetRandomColorRendererCmd;
+import pl.north93.nativescreen.video.cmd.PlayVideoCmd;
 import pl.north93.nativescreen.video.cmd.SetVideoRendererCmd;
 import pl.north93.nativescreen.winapi.renderer.SetNativeWindowRendererCmd;
 import pl.north93.nativescreen.renderer.cmd.SetTargetFpsCmd;
@@ -59,6 +60,7 @@ public class MainPlugin extends JavaPlugin
         this.getCommand("setfullscreenrenderer").setExecutor(new SetFullScreenRendererCmd());
         this.getCommand("setrandomcolorrenderer").setExecutor(new SetRandomColorRendererCmd());
         this.getCommand("settargetfps").setExecutor(new SetTargetFpsCmd());
+        this.getCommand("playvideo").setExecutor(new PlayVideoCmd());
     }
 
     @Override

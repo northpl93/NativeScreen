@@ -13,6 +13,10 @@ allprojects {
             dirs "$rootDir/Libraries"
         }
 
+        maven {
+            url 'https://jitpack.io'
+        }
+
         mavenLocal()
         mavenCentral()
     }
@@ -24,6 +28,8 @@ dependencies {
     implementation 'org.bytedeco:javacpp:1.5.4'
     implementation 'org.bytedeco:javacv:1.5.4'
     implementation 'org.bytedeco:ffmpeg-platform:4.3.1-1.5.4'
+
+    implementation 'com.github.sapher:youtubedl-java:master-SNAPSHOT'
 
     implementation 'net.java.dev.jna:jna:4.4.0'
     implementation 'net.java.dev.jna:jna-platform:4.4.0'
@@ -41,8 +47,8 @@ shadowJar {
     archiveName "${project.name}.jar"
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+compileJava.sourceCompatibility = JavaVersion.VERSION_11
+compileJava.targetCompatibility = JavaVersion.VERSION_11
 
 compileJava.options.encoding = "UTF-8"
 compileTestJava.options.encoding = "UTF-8"

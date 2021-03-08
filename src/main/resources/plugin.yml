@@ -12,6 +12,8 @@ commands:
     description: Changes renderer of specified board to FullScreenRenderer.
   setrandomcolorrenderer:
     description: Changes renderer of specified board to RandomColorRenderer.
+  playvideo:
+    description: Downloads and plays video using youtube-dl.
 
   # General rendering commands
   settargetfps:
