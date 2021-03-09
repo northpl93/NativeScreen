@@ -1,0 +1,11 @@
+boards:
+  test1:
+    world: "world"
+    leftCorner:
+      x: 86
+      y: 5
+      z: 471
+    rightCorner:
+      x: 72
+      y: 12
+      z: 471

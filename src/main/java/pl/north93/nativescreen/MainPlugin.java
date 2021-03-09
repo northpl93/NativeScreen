@@ -9,20 +9,22 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import pl.north93.nativescreen.config.BoardConfig;
+import pl.north93.nativescreen.config.PluginConfig;
 import pl.north93.nativescreen.fullscreen.SetFullScreenRendererCmd;
 import pl.north93.nativescreen.fullscreen.SetRandomColorRendererCmd;
-import pl.north93.nativescreen.video.cmd.PlayVideoCmd;
-import pl.north93.nativescreen.video.cmd.SetVideoRendererCmd;
-import pl.north93.nativescreen.winapi.renderer.SetNativeWindowRendererCmd;
-import pl.north93.nativescreen.renderer.cmd.SetTargetFpsCmd;
-import pl.north93.nativescreen.input.INavigationController;
 import pl.north93.nativescreen.gui.DebugMouseMovementRenderer;
+import pl.north93.nativescreen.input.INavigationController;
 import pl.north93.nativescreen.input.helper.NavigationOutputHandlerDebugger;
 import pl.north93.nativescreen.input.helper.NavigationOutputHandlerRendererRedirect;
 import pl.north93.nativescreen.input.impl.MinecraftInputGrabber;
 import pl.north93.nativescreen.renderer.IBoard;
 import pl.north93.nativescreen.renderer.IMapManager;
+import pl.north93.nativescreen.renderer.cmd.SetTargetFpsCmd;
 import pl.north93.nativescreen.renderer.impl.MapManagerImpl;
+import pl.north93.nativescreen.video.cmd.PlayVideoCmd;
+import pl.north93.nativescreen.video.cmd.SetVideoRendererCmd;
+import pl.north93.nativescreen.winapi.renderer.SetNativeWindowRendererCmd;
 
 public class MainPlugin extends JavaPlugin
 {
@@ -39,21 +41,17 @@ public class MainPlugin extends JavaPlugin
         this.mapManager = new MapManagerImpl(this);
         Bukkit.getPluginManager().registerEvents(this.grabber, this);
 
-        final World world = Bukkit.getWorld("world");
-        final Location leftCorner = new Location(world, 86, 5, 471);
-        final Location rightCorner = new Location(world, 72, 12, 471);
+        final PluginConfig config = new PluginConfig(this.getConfig());
+        for (final BoardConfig boardConfig : config.getBoards())
+        {
+            final World world = Bukkit.getWorld(boardConfig.getWorld());
+            final Location leftCorner = boardConfig.getLeftCorner().toBukkit(world);
+            final Location rightCorner = boardConfig.getRightCorner().toBukkit(world);
 
-        final IBoard board = this.mapManager.createBoard("test1", leftCorner, rightCorner);
-        board.getRendererThread().setTargetFps(25);
-        board.getRendererThread().start();
-
-        final INavigationController navigationController = this.grabber.getNavigationController();
-        navigationController.registerNavigationHandler(new NavigationOutputHandlerDebugger());
-        navigationController.registerNavigationHandler(new NavigationOutputHandlerRendererRedirect(board)); // pass all input events to renderer of our board
-
-        //board.setRenderer(new NativeWindowRenderer("sth"));
-        //board.setRenderer(new TestFullScreenRenderer());
-        //board.setRenderer(new ListWindowsRenderer());
+            final IBoard board = this.mapManager.createBoard(boardConfig.getName(), leftCorner, rightCorner);
+            board.getRendererThread().setTargetFps(25);
+            board.getRendererThread().start();
+        }
 
         this.getCommand("setvideorenderer").setExecutor(new SetVideoRendererCmd());
         this.getCommand("setnativewindowrenderer").setExecutor(new SetNativeWindowRendererCmd());
@@ -102,6 +100,12 @@ public class MainPlugin extends JavaPlugin
             }
 
             final IBoard board = this.mapManager.getBoardByName("test1");
+
+             final INavigationController navigationController = this.grabber.getNavigationController();
+             navigationController.registerNavigationHandler(new NavigationOutputHandlerDebugger());
+             // pass all input events to renderer of our board
+             navigationController.registerNavigationHandler(new NavigationOutputHandlerRendererRedirect(board));
+
             // all input will be redirected by NavigationOutputHandlerRendererRedirect, so we
             // don't have to register DebugMouseMovementRenderer in INavigationController
             board.setRenderer(new DebugMouseMovementRenderer());

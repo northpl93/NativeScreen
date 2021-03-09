@@ -1,6 +1,6 @@
 NativeScreen
 ============
-The useless project developed as a result of having too much free time.
+A useless project developed as a result of having too much free time.
 The main idea was playing real AAA games and streaming videos in Minecraft.
 
 The plugin has two main features:

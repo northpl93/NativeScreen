@@ -2,23 +2,23 @@ package pl.north93.nativescreen.config;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class ConfigLocation
 {
-    private int x;
-    private int y;
-    private int z;
+    private final int x;
+    private final int y;
+    private final int z;
+
+    public ConfigLocation(final ConfigurationSection config)
+    {
+        this.x = config.getInt("x");
+        this.y = config.getInt("y");
+        this.z = config.getInt("z");
+    }
 
     public Location toBukkit(final World world)
     {
