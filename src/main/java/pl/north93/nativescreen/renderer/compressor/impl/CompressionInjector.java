@@ -6,7 +6,7 @@ import org.bukkit.event.Listener;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 import pl.north93.nativescreen.renderer.compressor.IPacketCompressor;
-import pl.north93.northspigot.event.ChannelInitializeEvent;
+import pl.north93.nmsutils.protocol.event.ChannelInitializeEvent;
 
 @ToString
 @AllArgsConstructor

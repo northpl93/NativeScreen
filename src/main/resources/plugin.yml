@@ -2,6 +2,8 @@ name: NativeScreen
 version: "1.0"
 main: pl.north93.nativescreen.MainPlugin
 
+depend: ["NMSUtils"]
+
 commands:
   # Change renderer in specified board
   setvideorenderer:

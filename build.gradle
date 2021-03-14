@@ -9,10 +9,6 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 allprojects {
     repositories() {
-        flatDir {
-            dirs "$rootDir/Libraries"
-        }
-
         maven {
             url 'https://jitpack.io'
         }
@@ -23,7 +19,8 @@ allprojects {
 }
 
 dependencies {
-    shadow ':spigot-1.12.2'
+    shadow 'com.destroystokyo.paper:paper:1.12.2-R0.1-SNAPSHOT'
+    shadow 'pl.north93.nmsutils:api:1.0-SNAPSHOT'
 
     implementation 'org.bytedeco:javacpp:1.5.4'
     implementation 'org.bytedeco:javacv:1.5.4'

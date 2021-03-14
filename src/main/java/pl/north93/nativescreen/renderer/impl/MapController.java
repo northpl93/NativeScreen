@@ -19,6 +19,7 @@ import io.netty.channel.Channel;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
+import pl.north93.nativescreen.MainPlugin;
 import pl.north93.nativescreen.renderer.IMapUploader;
 import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
 
@@ -27,6 +28,7 @@ import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
 @AllArgsConstructor
 /*default*/ class MapController implements Listener
 {
+    private final MainPlugin mainPlugin;
     private final IMapUploader mapUploader;
 
     public void handlePlayerEnter(final MapImpl map, final Player player)
@@ -34,7 +36,12 @@ import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
         map.addTracingPlayer(player);
 
         // put map into ItemFrame client-side
-        this.uploadFilledMapItem(player, map.getFrameEntityId(), map.getMapId());
+        this.mainPlugin.getServer().getScheduler().runTask(this.mainPlugin, () ->
+        {
+            // this method is called before entity spawn packets are send, so we must
+            // delay sending of entitymetadata
+            this.uploadFilledMapItem(player, map.getFrameEntityId(), map.getMapId());
+        });
 
         // wake up the renderer thread, in case if it was paused
         final RendererThreadImpl rendererThread = map.getBoard().getRendererThread();

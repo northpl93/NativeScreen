@@ -25,6 +25,7 @@ import pl.north93.nativescreen.renderer.impl.MapManagerImpl;
 import pl.north93.nativescreen.video.cmd.PlayVideoCmd;
 import pl.north93.nativescreen.video.cmd.SetVideoRendererCmd;
 import pl.north93.nativescreen.winapi.renderer.SetNativeWindowRendererCmd;
+import pl.north93.nmsutils.NMSUtils;
 
 public class MainPlugin extends JavaPlugin
 {
@@ -37,7 +38,9 @@ public class MainPlugin extends JavaPlugin
     {
         INSTANCE = this;
 
-        this.grabber = new MinecraftInputGrabber();
+        final NMSUtils nmsUtils = (NMSUtils) Bukkit.getPluginManager().getPlugin("NMSUtils");
+
+        this.grabber = new MinecraftInputGrabber(nmsUtils.getProtocolManager());
         this.mapManager = new MapManagerImpl(this);
         Bukkit.getPluginManager().registerEvents(this.grabber, this);
 

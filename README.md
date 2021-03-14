@@ -8,6 +8,12 @@ The plugin has two main features:
   _Manages to generate and compress more than 3600 packets per second (30FPS, 15x8 maps, equivalent of 1920x1080)_
 * catching a player's input using "vehicle steer" packet
 
+Requirements
+============
+* Paper 1.12.2
+* [NMSUtils](https://github.com/northpl93/NMSUtils)
+* youtube-dl binary in the `PATH` (e.g. in the server's root directory) if you want to download videos from youtube
+
 Renderers
 =========
 A _renderer_ is responsible for generating an image that is shown for the players.

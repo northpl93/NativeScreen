@@ -13,8 +13,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
 import lombok.ToString;
-import pl.north93.northspigot.event.entity.EntityTrackedPlayerEvent;
-import pl.north93.northspigot.event.entity.EntityUnTrackedPlayerEvent;
+import pl.north93.nmsutils.tracker.event.EntityTrackedPlayerEvent;
+import pl.north93.nmsutils.tracker.event.EntityUnTrackedPlayerEvent;
 
 @ToString(onlyExplicitlyIncluded = true)
 public class MapListener implements Listener

@@ -20,5 +20,4 @@ gradle-app.setting
 local.properties
 !gradle-wrapper.jar
 .gradletasknamecache
-!Libraries/spigot-1.12.2.jar
 testsv

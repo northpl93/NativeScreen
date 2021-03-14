@@ -14,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import pl.north93.nativescreen.MainPlugin;
 import pl.north93.nativescreen.renderer.IBoard;
 import pl.north93.nativescreen.renderer.IMapManager;
 import pl.north93.nativescreen.renderer.IMapUploader;
@@ -26,10 +27,10 @@ public class MapManagerImpl implements IMapManager
     private final MapController mapController;
     private final List<BoardImpl> boards = new ArrayList<>();
 
-    public MapManagerImpl(final JavaPlugin plugin)
+    public MapManagerImpl(final MainPlugin plugin)
     {
         final IMapUploader mapUploader = this.constructMapUploader(plugin);
-        this.mapController = new MapController(mapUploader);
+        this.mapController = new MapController(plugin, mapUploader);
 
         final MapListener mapListener = new MapListener(this, this.mapController);
         Bukkit.getPluginManager().registerEvents(mapListener, plugin);

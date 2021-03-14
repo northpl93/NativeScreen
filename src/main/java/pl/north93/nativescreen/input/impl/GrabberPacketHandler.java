@@ -2,9 +2,7 @@ package pl.north93.nativescreen.input.impl;
 
 import net.minecraft.server.v1_12_R1.EntityPlayer;
 import net.minecraft.server.v1_12_R1.MathHelper;
-import net.minecraft.server.v1_12_R1.NetworkManager;
 import net.minecraft.server.v1_12_R1.Packet;
-import net.minecraft.server.v1_12_R1.PacketListener;
 import net.minecraft.server.v1_12_R1.PacketPlayInArmAnimation;
 import net.minecraft.server.v1_12_R1.PacketPlayInFlying;
 import net.minecraft.server.v1_12_R1.PacketPlayInFlying.PacketPlayInLook;
@@ -12,36 +10,35 @@ import net.minecraft.server.v1_12_R1.PacketPlayInFlying.PacketPlayInPositionLook
 import net.minecraft.server.v1_12_R1.PacketPlayInKeepAlive;
 import net.minecraft.server.v1_12_R1.PacketPlayInSteerVehicle;
 import net.minecraft.server.v1_12_R1.PacketPlayOutEntity.PacketPlayOutEntityLook;
-import net.minecraft.server.v1_12_R1.PlayerConnection;
 
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.entity.Player;
+
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import pl.north93.nativescreen.input.Key;
+import pl.north93.nmsutils.protocol.IPacketHandler;
 
 @Log4j2
-/*default*/ class NorthChannelHandler extends ChannelDuplexHandler
+@AllArgsConstructor
+class GrabberPacketHandler implements IPacketHandler
 {
-    private final MinecraftInputGrabber    inputGrabber;
+    private final MinecraftInputGrabber inputGrabber;
     private final NavigationControllerImpl controller;
-    private final NetworkManager           networkManager;
 
-    public NorthChannelHandler(final MinecraftInputGrabber inputGrabber, final NavigationControllerImpl controller, final NetworkManager networkManager)
+    @Override
+    public boolean onPacketSend(final Player player, final Object packet)
     {
-        this.inputGrabber = inputGrabber;
-        this.controller = controller;
-        this.networkManager = networkManager;
+        return true;
     }
 
     @Override
-    public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception
+    public boolean onPacketReceive(final Player player, final Object msg)
     {
-        if ( !( msg instanceof Packet) || ! this.isPlayerGrabbed())
+        if ( !( msg instanceof Packet) || player == null || ! this.inputGrabber.isPlayerGrabbed(player))
         {
             // msg is not Packet or player isnt grabbed
-            super.channelRead(ctx, msg);
-            return;
+            return true;
         }
 
         final Packet<?> packet = (Packet<?>) msg;
@@ -50,21 +47,21 @@ import pl.north93.nativescreen.input.Key;
             final PacketPlayInSteerVehicle steerVehicle = (PacketPlayInSteerVehicle) packet;
             this.handleSteerVehicle(steerVehicle);
 
-            return; // catch this packet and do not execute it in minecraft engine
+            return false; // catch this packet and do not execute it in minecraft engine
         }
         else if (packet instanceof PacketPlayInFlying)
         {
             final PacketPlayInFlying flying = (PacketPlayInFlying) packet;
-            this.handleFlying(flying);
+            this.handleFlying(player, flying);
 
-            return; // catch this packet and do not execute it in minecraft engine
+            return false; // catch this packet and do not execute it in minecraft engine
         }
         else if (packet instanceof PacketPlayInArmAnimation)
         {
             // packet is incoming when player left click air
             this.controller.signalKeyHit(Key.MOUSE_LEFT);
 
-            return; // catch this packet and do not execute it in minecraft engine
+            return false; // catch this packet and do not execute it in minecraft engine
         }
         else if (packet instanceof PacketPlayInKeepAlive)
         {
@@ -73,7 +70,7 @@ import pl.north93.nativescreen.input.Key;
 
         //Bukkit.broadcastMessage("Channel read: " + packet);
 
-        super.channelRead(ctx, msg);
+        return true;
     }
 
     private void handleSteerVehicle(final PacketPlayInSteerVehicle packet)
@@ -106,9 +103,9 @@ import pl.north93.nativescreen.input.Key;
         //Bukkit.broadcastMessage("sideways: " + packet.a() + " forward: " + packet.b());
     }
 
-    private void handleFlying(final PacketPlayInFlying packet)
+    private void handleFlying(final Player player, final PacketPlayInFlying packet)
     {
-        final EntityPlayer entityPlayer = this.getMinecraftPlayer();
+        final EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         if (entityPlayer == null)
         {
             return;
@@ -130,61 +127,5 @@ import pl.north93.nativescreen.input.Key;
         final PacketPlayOutEntityLook entityLook = new PacketPlayOutEntityLook(entityPlayer.getId(), i, j, true);
 
         entityPlayer.playerConnection.networkManager.channel.writeAndFlush(entityLook);
-    }
-
-    @Override
-    public void channelActive(final ChannelHandlerContext ctx) throws Exception
-    {
-        log.info("Channel active for {}", ctx.channel());
-        super.channelActive(ctx);
-    }
-
-    @Override
-    public void channelInactive(final ChannelHandlerContext ctx) throws Exception
-    {
-        log.info("Channel inactive for {}", ctx.channel());
-        super.channelInactive(ctx);
-    }
-
-    @Override
-    public void write(final ChannelHandlerContext ctx, final Object msg, final ChannelPromise promise) throws Exception
-    {
-        if ( !( msg instanceof Packet ) )
-        {
-            super.write(ctx, msg, promise);
-            return;
-        }
-
-        final Packet<?> packet = (Packet<?>) msg;
-        super.write(ctx, msg, promise);
-    }
-
-    @Override
-    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception
-    {
-        log.error("Exception caught when processing channel pipeline", cause);
-        super.exceptionCaught(ctx, cause);
-    }
-
-    private boolean isPlayerGrabbed()
-    {
-        final EntityPlayer minecraftPlayer = this.getMinecraftPlayer();
-        if (minecraftPlayer == null)
-        {
-            return false;
-        }
-
-        return this.inputGrabber.isPlayerGrabbed(minecraftPlayer.getBukkitEntity());
-    }
-
-    private EntityPlayer getMinecraftPlayer()
-    {
-        final PacketListener packetListener = this.networkManager.i(); // should be getPacketListener()
-        if ( packetListener instanceof PlayerConnection)
-        {
-            return ((PlayerConnection) packetListener).player;
-        }
-
-        return null;
     }
 }
