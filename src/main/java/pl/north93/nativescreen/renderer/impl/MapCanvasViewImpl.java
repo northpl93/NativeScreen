@@ -118,7 +118,7 @@ class MapCanvasViewImpl implements IMapCanvas, IMapCanvasDirectAccess
         final int baseIndex = this.canvas.calculateIndex(this.xBase, this.yBase);
         for (int i = 0; i < SINGLE_MAP_SIDE; i++)
         {
-            final int currentIndexStart = i * SINGLE_MAP_SIDE + baseIndex;
+            final int currentIndexStart = i * this.canvas.getWidth() + baseIndex;
             final int currentIndexEnd = currentIndexStart + SINGLE_MAP_SIDE;
 
             final byte[] thisBytes = this.canvas.getBytes();
