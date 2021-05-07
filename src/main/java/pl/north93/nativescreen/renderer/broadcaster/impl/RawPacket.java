@@ -1,4 +1,4 @@
-package pl.north93.nativescreen.renderer.compressor.impl;
+package pl.north93.nativescreen.renderer.broadcaster.impl;
 
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @AllArgsConstructor
-/*default*/ final class CompressedPacket
+/*default*/ final class RawPacket
 {
-    private final ByteBuf compressedData;
+    private final ByteBuf rawData;
 }

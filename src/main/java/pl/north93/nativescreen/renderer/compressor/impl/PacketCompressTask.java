@@ -6,14 +6,16 @@ import java.util.zip.DeflaterOutputStream;
 
 import net.minecraft.server.v1_12_R1.PacketDataSerializer;
 
+import org.bukkit.entity.Player;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.UnpooledByteBufAllocator;
-import io.netty.channel.Channel;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import pl.north93.nativescreen.renderer.broadcaster.IPacketBroadcaster;
 import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
 
 @Slf4j
@@ -21,7 +23,8 @@ import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
 @AllArgsConstructor
 /*default*/ final class PacketCompressTask implements Runnable
 {
-    private final Collection<Channel> channels;
+    private final IPacketBroadcaster packetBroadcaster;
+    private final Collection<Player> channels;
     private final ICompressablePacket compressablePacket;
 
     @Override
@@ -30,12 +33,7 @@ import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
         try
         {
             final ByteBuf compressedData = this.preparePacket();
-
-            final CompressedPacket compressedPacket = new CompressedPacket(compressedData);
-            for (final Channel channel : this.channels)
-            {
-                channel.writeAndFlush(compressedPacket);
-            }
+            this.packetBroadcaster.broadcastRawPacket(this.channels, compressedData);
         }
         catch (final Exception e)
         {

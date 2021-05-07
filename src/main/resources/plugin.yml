@@ -1,6 +1,7 @@
 name: NativeScreen
-version: "1.0"
 main: pl.north93.nativescreen.MainPlugin
+version: "1.0"
+author: northpl93
 
 depend: ["NMSUtils"]
 

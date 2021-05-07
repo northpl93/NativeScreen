@@ -4,45 +4,57 @@ import java.util.Collection;
 
 import net.minecraft.server.v1_12_R1.PacketDataSerializer;
 
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
-import io.netty.channel.Channel;
 import pl.north93.nativescreen.renderer.IMap;
 import pl.north93.nativescreen.renderer.IMapCanvasDirectAccess;
 import pl.north93.nativescreen.renderer.IMapUploader;
+import pl.north93.nativescreen.renderer.broadcaster.IPacketBroadcaster;
 
 public final class StandardMapUploader implements IMapUploader
 {
-    public static final int BUFFER_SIZE = 5 + 5 + 1 + 1 + 5 + 4 + 5 + 16384;
     private static final int PACKET_PLAY_OUT_MAP_ID = 0x24;
-    private static final int MAP_SIZE = 128;
+    private static final int PACKET_ID_SIZE = PacketDataSerializer.countBytes(PACKET_PLAY_OUT_MAP_ID);
+    public static final int PACKET_STATIC_SIZE = 1 + 1 + 1 + 4;
+
+    private final IPacketBroadcaster packetBroadcaster;
+
+    public StandardMapUploader(final IPacketBroadcaster packetBroadcaster)
+    {
+        this.packetBroadcaster = packetBroadcaster;
+    }
 
     @Override
     public void uploadMapToAudience(final Collection<Player> audience, final IMap map, final IMapCanvasDirectAccess newCanvas)
     {
-        final ByteBuf buffer = UnpooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE, BUFFER_SIZE);
-        writeMapPacket(buffer, map.getMapId(), newCanvas);
+        final ByteBuf byteBuf = writeMapPacket(map.getMapId(), newCanvas);
 
-        for (final Player player : audience)
-        {
-            if (! map.isTrackedBy(player))
-            {
-                continue;
-            }
-
-            final CraftPlayer craftPlayer = (CraftPlayer) player;
-            final Channel channel = craftPlayer.getHandle().playerConnection.networkManager.channel;
-            channel.writeAndFlush(buffer);
-        }
+        this.packetBroadcaster.broadcastRawPacket(audience, byteBuf);
     }
 
-    public static void writeMapPacket(final ByteBuf buffer, final int mapId, final IMapCanvasDirectAccess newCanvas)
+    public static ByteBuf writeMapPacket(final int mapId, final IMapCanvasDirectAccess newCanvas)
     {
-        final PacketDataSerializer serializer = new PacketDataSerializer(buffer);
+        // = = = calculate packet sizes
+        final int mapIdSize = PacketDataSerializer.countBytes(mapId);
+        final int canvasArrayLength = newCanvas.getHeight() * newCanvas.getWidth();
+        final int canvasArrayLengthSize = PacketDataSerializer.countBytes(canvasArrayLength);
+        final int packetDataSize = PACKET_ID_SIZE + mapIdSize + PACKET_STATIC_SIZE + canvasArrayLengthSize + canvasArrayLength;
+        final int totalPacketSize = PacketDataSerializer.countBytes(packetDataSize) + packetDataSize;
 
+        final ByteBuf byteBuf = UnpooledByteBufAllocator.DEFAULT.directBuffer(totalPacketSize, totalPacketSize);
+        final PacketDataSerializer serializer = new PacketDataSerializer(byteBuf);
+
+        // = = = packet header
+        serializer.d(packetDataSize); // writeVarInt(1-5) - size of following data
+
+        writeMapPacketData(serializer, mapId, newCanvas);
+        return byteBuf;
+    }
+
+    public static void writeMapPacketData(final PacketDataSerializer serializer, final int mapId, final IMapCanvasDirectAccess newCanvas)
+    {
         // = = = packet header
         serializer.d(PACKET_PLAY_OUT_MAP_ID); // writeVarInt(1-5) - packetId
 
@@ -51,13 +63,21 @@ public final class StandardMapUploader implements IMapUploader
         serializer.writeByte(4); // writeByte(1) - map scale
         serializer.writeBoolean(false); // writeBoolean(1) - Tracking Position
         serializer.d(0); // writeVarInt(1-5) - amount of icons
-        serializer.writeByte(MAP_SIZE); // writeByte(1) - columns
-        serializer.writeByte(MAP_SIZE); // writeByte(1) - rows
+        serializer.writeByte(newCanvas.getWidth()); // writeByte(1) - columns
+        serializer.writeByte(newCanvas.getHeight()); // writeByte(1) - rows
         serializer.writeByte(0); // writeByte(1) - x offset
         serializer.writeByte(0); // writeByte(1) - z offset
 
+        // writeVarInt - size of the following array, always 5?
+        serializer.d(newCanvas.getHeight() * newCanvas.getWidth());
+
+        // write map array without copying
         final byte[] newCanvasBytes = newCanvas.getBytes();
-        serializer.a(newCanvasBytes); // writeByteArrayWithLength(5 + size) - writes varInt and following byte array
+        for (int i = 0; i < newCanvas.getHeight(); i++)
+        {
+            final int startIndex = newCanvas.calculateIndex(0, i);
+            serializer.writeBytes(newCanvasBytes, startIndex, newCanvas.getWidth());
+        }
     }
 }
 

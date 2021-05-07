@@ -25,7 +25,7 @@ class MapImpl implements IMap
     private final short mapId;
     private final UUID frameId;
     private final Set<Player> trackingPlayers;
-    private MapCanvasImpl latestCanvas;
+    private MapCanvasViewImpl latestCanvas;
     private ItemFrame itemFrame;
 
     public MapImpl(final MapController controller, final BoardImpl board, final ItemFrame itemFrame)
@@ -77,12 +77,12 @@ class MapImpl implements IMap
         }
     }
 
-    public void updateCanvas(final MapCanvasImpl newCanvas)
+    public void updateCanvas(final MapCanvasViewImpl newCanvas)
     {
         this.latestCanvas = newCanvas;
     }
 
-    public boolean isCanvasSameAsLatest(final MapCanvasImpl newCanvas)
+    public boolean isCanvasSameAsLatest(final MapCanvasViewImpl newCanvas)
     {
         return newCanvas.equals(this.latestCanvas);
     }

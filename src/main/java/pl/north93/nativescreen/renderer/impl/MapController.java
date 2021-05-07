@@ -70,17 +70,17 @@ import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
         {
             for (int j = 0; j < board.getHeight(); j++)
             {
-                final MapCanvasImpl subMapCanvas = mapCanvas.getSubMapCanvas(i, j);
+                final MapCanvasViewImpl canvasView = mapCanvas.createCanvasView(i, j);
                 final MapImpl map = board.getMap(i, j);
 
-                if (map.isCanvasSameAsLatest(subMapCanvas))
+                if (map.isCanvasSameAsLatest(canvasView))
                 {
                     notUploaded++;
                     continue;
                 }
 
-                map.updateCanvas(subMapCanvas);
-                this.mapUploader.uploadMapToAudience(players, map, subMapCanvas);
+                map.updateCanvas(canvasView);
+                this.mapUploader.uploadMapToAudience(players, map, canvasView);
             }
         }
 

@@ -3,6 +3,8 @@ package pl.north93.nativescreen.renderer.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import net.minecraft.server.v1_12_R1.DedicatedServer;
 
@@ -18,7 +20,8 @@ import pl.north93.nativescreen.MainPlugin;
 import pl.north93.nativescreen.renderer.IBoard;
 import pl.north93.nativescreen.renderer.IMapManager;
 import pl.north93.nativescreen.renderer.IMapUploader;
-import pl.north93.nativescreen.renderer.compressor.MultithreadedCompressedMapUploader;
+import pl.north93.nativescreen.renderer.compressor.impl.MultithreadedCompressedMapUploader;
+import pl.north93.nativescreen.renderer.broadcaster.impl.PacketBroadcasterImpl;
 
 @Slf4j
 @ToString(of = "boards")
@@ -44,14 +47,17 @@ public class MapManagerImpl implements IMapManager
         final int compressThreshold = dedicatedServer.aG();
         log.info("Compress threshold: {}", compressThreshold);
 
+        final PacketBroadcasterImpl packetBroadcaster = new PacketBroadcasterImpl(plugin);
         if (compressThreshold > 0)
         {
+            final ExecutorService executorService = Executors.newFixedThreadPool(8);
+
             // whole server must have enabled compression to allow our things to work
-            return new MultithreadedCompressedMapUploader(plugin);
+            return new MultithreadedCompressedMapUploader(packetBroadcaster, executorService);
         }
         else
         {
-            return new StandardMapUploader();
+            return new StandardMapUploader(packetBroadcaster);
         }
     }
 

@@ -23,7 +23,5 @@ public interface IMapCanvas
 
     void writeDebugImage(File location);
 
-    IMapCanvas copy();
-
     boolean equals(Object other);
 }

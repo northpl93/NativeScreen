@@ -142,22 +142,9 @@ final class MapCanvasImpl implements IMapCanvas, IMapCanvasDirectAccess
         return y * this.xSize + x;
     }
 
-    public MapCanvasImpl getSubMapCanvas(final int xMap, final int yMap)
+    public MapCanvasViewImpl createCanvasView(final int xMap, final int yMap)
     {
-        // definujemy nowa tablice na mape 128x128 pixeli
-        final byte[] subMap = new byte[SINGLE_MAP_SIDE * SINGLE_MAP_SIDE];
-
-        // szukamy punktu poczatkowego skad zaczynamy kopiowac
-        final int startPoint = this.calculateIndex(xMap * 128, yMap * 128);
-
-        for (int lines = 0, destLoc = 0; lines < SINGLE_MAP_SIDE; lines++, destLoc += SINGLE_MAP_SIDE)
-        {
-            // szukamy startu aktualnej linijki. kazda linijka ma 128 pixele
-            final int currentLineStart = startPoint + (lines * this.xSize);
-            System.arraycopy(this.buffer, currentLineStart, subMap, destLoc, SINGLE_MAP_SIDE);
-        }
-
-        return new MapCanvasImpl(SINGLE_MAP_SIDE, SINGLE_MAP_SIDE, subMap);
+        return new MapCanvasViewImpl(this, xMap * SINGLE_MAP_SIDE, yMap * SINGLE_MAP_SIDE, SINGLE_MAP_SIDE, SINGLE_MAP_SIDE);
     }
 
     @Override
@@ -179,15 +166,6 @@ final class MapCanvasImpl implements IMapCanvas, IMapCanvasDirectAccess
         {
             log.error("Failed to write debug image", e);
         }
-    }
-
-    @Override
-    public IMapCanvas copy()
-    {
-        final byte[] bytes = new byte[this.buffer.length];
-        System.arraycopy(this.buffer, 0, bytes, 0, this.buffer.length);
-
-        return new MapCanvasImpl(this.xSize, this.ySize, bytes);
     }
 
     @Override

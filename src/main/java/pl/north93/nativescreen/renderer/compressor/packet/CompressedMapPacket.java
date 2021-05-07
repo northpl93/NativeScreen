@@ -1,5 +1,7 @@
 package pl.north93.nativescreen.renderer.compressor.packet;
 
+import net.minecraft.server.v1_12_R1.PacketDataSerializer;
+
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
@@ -17,12 +19,12 @@ public class CompressedMapPacket implements ICompressablePacket
     @Override
     public int predictBufferSize()
     {
-        return StandardMapUploader.BUFFER_SIZE;
+        return StandardMapUploader.PACKET_STATIC_SIZE;
     }
 
     @Override
     public void writeData(final ByteBuf buffer)
     {
-        StandardMapUploader.writeMapPacket(buffer, this.mapId, this.mapCanvas);
+        StandardMapUploader.writeMapPacketData(new PacketDataSerializer(buffer), this.mapId, this.mapCanvas);
     }
 }
