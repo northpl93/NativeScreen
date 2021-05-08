@@ -23,16 +23,11 @@ final class MapCanvasImpl implements IMapCanvas, IMapCanvasDirectAccess
     private final int xSize, ySize;
     private final byte[] buffer;
 
-    public MapCanvasImpl(final int xSize, final int ySize, final byte[] buffer)
+    private MapCanvasImpl(final int xSize, final int ySize)
     {
         this.xSize = xSize;
         this.ySize = ySize;
-        this.buffer = buffer;
-    }
-
-    public MapCanvasImpl(final int xSize, final int ySize)
-    {
-        this(xSize, ySize, new byte[xSize * ySize]);
+        this.buffer = new byte[xSize * ySize];
     }
 
     public static MapCanvasImpl createFromMaps(final int xMaps, final int yMaps)
@@ -144,7 +139,7 @@ final class MapCanvasImpl implements IMapCanvas, IMapCanvasDirectAccess
 
     public MapCanvasViewImpl createCanvasView(final int xMap, final int yMap)
     {
-        return new MapCanvasViewImpl(this, xMap * SINGLE_MAP_SIDE, yMap * SINGLE_MAP_SIDE, SINGLE_MAP_SIDE, SINGLE_MAP_SIDE);
+        return new MapCanvasViewImpl(this, xMap * SINGLE_MAP_SIDE, yMap * SINGLE_MAP_SIDE);
     }
 
     @Override

@@ -17,11 +17,15 @@ public interface IRendererThread
      */
     void wakeup();
 
+    void setPerformanceCountersEnabled(boolean enabled);
+
     int getTargetFps();
 
     void setTargetFps(int targetFps);
 
     long getTargetNanosecondsPerFrame();
+
+    int getLatestUploadedMaps();
 
     long getLatestFrameTime();
 }

@@ -21,6 +21,7 @@ import pl.north93.nativescreen.input.impl.MinecraftInputGrabber;
 import pl.north93.nativescreen.renderer.IBoard;
 import pl.north93.nativescreen.renderer.IMapManager;
 import pl.north93.nativescreen.renderer.cmd.SetTargetFpsCmd;
+import pl.north93.nativescreen.renderer.cmd.SetPerformanceCountersCmd;
 import pl.north93.nativescreen.renderer.impl.MapManagerImpl;
 import pl.north93.nativescreen.video.cmd.PlayVideoCmd;
 import pl.north93.nativescreen.video.cmd.SetVideoRendererCmd;
@@ -61,6 +62,7 @@ public class MainPlugin extends JavaPlugin
         this.getCommand("setfullscreenrenderer").setExecutor(new SetFullScreenRendererCmd());
         this.getCommand("setrandomcolorrenderer").setExecutor(new SetRandomColorRendererCmd());
         this.getCommand("settargetfps").setExecutor(new SetTargetFpsCmd());
+        this.getCommand("setperformancecounters").setExecutor(new SetPerformanceCountersCmd());
         this.getCommand("playvideo").setExecutor(new PlayVideoCmd());
     }
 

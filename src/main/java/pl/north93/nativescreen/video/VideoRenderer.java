@@ -23,7 +23,7 @@ public class VideoRenderer implements IMapRenderer
         Frame frame;
         do
         {
-            frame = this.grabber.grabFrame(false, true, true, false, true);
+            frame = this.grabber.grabFrame(false, true, true, false, false);
             if (frame == null)
             {
                 return;

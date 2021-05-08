@@ -24,7 +24,7 @@ import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
 /*default*/ final class PacketCompressTask implements Runnable
 {
     private final IPacketBroadcaster packetBroadcaster;
-    private final Collection<Player> channels;
+    private final Collection<Player> players;
     private final ICompressablePacket compressablePacket;
 
     @Override
@@ -33,7 +33,7 @@ import pl.north93.nativescreen.renderer.compressor.ICompressablePacket;
         try
         {
             final ByteBuf compressedData = this.preparePacket();
-            this.packetBroadcaster.broadcastRawPacket(this.channels, compressedData);
+            this.packetBroadcaster.broadcastRawPacket(this.players, compressedData);
         }
         catch (final Exception e)
         {

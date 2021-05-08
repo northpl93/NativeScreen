@@ -16,7 +16,7 @@ class MapCanvasViewImpl implements IMapCanvas, IMapCanvasDirectAccess
     private final MapCanvasImpl canvas;
     private final int xBase, yBase;
 
-    public MapCanvasViewImpl(final MapCanvasImpl canvas, final int xBase, final int yBase, final int xSize, final int ySize)
+    public MapCanvasViewImpl(final MapCanvasImpl canvas, final int xBase, final int yBase)
     {
         this.canvas = canvas;
         this.xBase = xBase;
@@ -86,7 +86,13 @@ class MapCanvasViewImpl implements IMapCanvas, IMapCanvasDirectAccess
     @Override
     public void fill(final byte color)
     {
-        throw new NotImplementedException("TODO");
+        for (int y = 0; y < SINGLE_MAP_SIDE; y++)
+        {
+            for (int x = 0; x < SINGLE_MAP_SIDE; x++)
+            {
+                this.setPixelUnsafe(x, y, color);
+            }
+        }
     }
 
     @Override
@@ -116,9 +122,9 @@ class MapCanvasViewImpl implements IMapCanvas, IMapCanvasDirectAccess
         final MapCanvasViewImpl other = (MapCanvasViewImpl) o;
 
         final int baseIndex = this.canvas.calculateIndex(this.xBase, this.yBase);
-        for (int i = 0; i < SINGLE_MAP_SIDE; i++)
+        for (int y = 0; y < SINGLE_MAP_SIDE; y++)
         {
-            final int currentIndexStart = i * this.canvas.getWidth() + baseIndex;
+            final int currentIndexStart = y * this.canvas.getWidth() + baseIndex;
             final int currentIndexEnd = currentIndexStart + SINGLE_MAP_SIDE;
 
             final byte[] thisBytes = this.canvas.getBytes();

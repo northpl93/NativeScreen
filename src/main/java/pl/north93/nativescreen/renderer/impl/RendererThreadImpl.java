@@ -17,17 +17,21 @@ import pl.north93.nativescreen.renderer.IRendererThread;
 class RendererThreadImpl extends Thread implements IRendererThread
 {
     private static final double ONE_SECOND_NANOS = 1_000_000_000;
+    private final PerformanceCountersRenderer performanceCountersRenderer;
     private final MapController mapController;
     private final BoardImpl assignedBoard;
     private boolean working = true;
     @Getter @Setter
     private int targetFps = 30;
     @Getter
+    private int latestUploadedMaps = 0;
+    @Getter
     private long latestFrameTime = 0;
 
     public RendererThreadImpl(final MapController mapController, final BoardImpl assignedBoard)
     {
         super("Renderer thread " + assignedBoard.getIdentifier());
+        this.performanceCountersRenderer = new PerformanceCountersRenderer(assignedBoard);
         this.mapController = mapController;
         this.assignedBoard = assignedBoard;
     }
@@ -88,8 +92,9 @@ class RendererThreadImpl extends Thread implements IRendererThread
 
         final MapCanvasImpl canvas = MapCanvasImpl.createFromMaps(width, height);
         renderer.render(this.assignedBoard, canvas);
+        this.performanceCountersRenderer.render(canvas);
 
-        this.mapController.pushNewCanvasToAudience(playersInRange, this.assignedBoard, canvas);
+        this.latestUploadedMaps = this.mapController.pushNewCanvasToAudience(playersInRange, this.assignedBoard, canvas);
     }
 
     @Override
@@ -108,6 +113,12 @@ class RendererThreadImpl extends Thread implements IRendererThread
         {
             this.notify();
         }
+    }
+
+    @Override
+    public void setPerformanceCountersEnabled(final boolean enabled)
+    {
+        this.performanceCountersRenderer.setEnabled(enabled);
     }
 
     public void end()

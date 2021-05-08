@@ -16,7 +16,7 @@ import pl.north93.nativescreen.renderer.broadcaster.IPacketBroadcaster;
 public final class StandardMapUploader implements IMapUploader
 {
     private static final int PACKET_PLAY_OUT_MAP_ID = 0x24;
-    private static final int PACKET_ID_SIZE = PacketDataSerializer.countBytes(PACKET_PLAY_OUT_MAP_ID);
+    public static final int PACKET_ID_SIZE = PacketDataSerializer.countBytes(PACKET_PLAY_OUT_MAP_ID);
     public static final int PACKET_STATIC_SIZE = 1 + 1 + 1 + 4;
 
     private final IPacketBroadcaster packetBroadcaster;

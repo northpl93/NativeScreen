@@ -19,10 +19,6 @@ import pl.north93.nativescreen.renderer.IMapRenderer;
 @ToString(of = {"identifier", "width", "height", "rendererHolder"})
 class BoardImpl implements IBoard
 {
-    private final Map<Player, Integer> trackingPlayers;
-    private final RendererHolder rendererHolder;
-    @Getter
-    private final RendererThreadImpl rendererThread;
     @Getter
     private final MapController mapController;
     @Getter
@@ -30,17 +26,21 @@ class BoardImpl implements IBoard
     @Getter
     private final int width, height;
     private final MapImpl[][] maps;
+    private final Map<Player, Integer> trackingPlayers;
+    private final RendererHolder rendererHolder;
+    @Getter
+    private final RendererThreadImpl rendererThread;
 
     public BoardImpl(final MapController mapController, final String identifier, final int width, final int height, final MapImpl[][] maps)
     {
-        this.trackingPlayers = new ConcurrentHashMap<>();
-        this.rendererHolder = new RendererHolder();
-        this.rendererThread = new RendererThreadImpl(mapController, this);
         this.mapController = mapController;
         this.identifier = identifier;
         this.width = width;
         this.height = height;
         this.maps = maps;
+        this.trackingPlayers = new ConcurrentHashMap<>();
+        this.rendererHolder = new RendererHolder();
+        this.rendererThread = new RendererThreadImpl(mapController, this);
     }
 
     @Override

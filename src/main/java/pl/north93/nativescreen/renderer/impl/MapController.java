@@ -63,9 +63,9 @@ import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
         channel.writeAndFlush(helper.complete());
     }
 
-    public void pushNewCanvasToAudience(final Collection<Player> players, final BoardImpl board, final MapCanvasImpl mapCanvas)
+    public int pushNewCanvasToAudience(final Collection<Player> players, final BoardImpl board, final MapCanvasImpl mapCanvas)
     {
-        int notUploaded = 0;
+        int uploadedMaps = 0;
         for (int i = 0; i < board.getWidth(); i++)
         {
             for (int j = 0; j < board.getHeight(); j++)
@@ -75,18 +75,16 @@ import pl.north93.nativescreen.utils.EntityMetaPacketHelper;
 
                 if (map.isCanvasSameAsLatest(canvasView))
                 {
-                    notUploaded++;
                     continue;
                 }
 
+                uploadedMaps++;
                 map.updateCanvas(canvasView);
                 this.mapUploader.uploadMapToAudience(players, map, canvasView);
             }
         }
 
-        final double total = board.getHeight() * board.getWidth();
-        final double percent = notUploaded / total * 100;
-        log.debug("Skipped uploading of {}% maps", percent);
+        return uploadedMaps;
     }
 
     /*default*/ MapImpl getMapFromEntity(final org.bukkit.entity.Entity entity)

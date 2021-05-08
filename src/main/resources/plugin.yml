@@ -21,5 +21,7 @@ commands:
   # General rendering commands
   settargetfps:
     description: Changes target FPS of specified board.
+  setperformancecounters:
+    description: Enables or disables performance counters of specified board.
   test:
     description: Test

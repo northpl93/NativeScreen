@@ -19,7 +19,11 @@ public class CompressedMapPacket implements ICompressablePacket
     @Override
     public int predictBufferSize()
     {
-        return StandardMapUploader.PACKET_STATIC_SIZE;
+        final int mapIdSize = PacketDataSerializer.countBytes(this.mapId);
+        final int canvasArrayLength = this.mapCanvas.getHeight() * this.mapCanvas.getWidth();
+        final int canvasArrayLengthSize = PacketDataSerializer.countBytes(canvasArrayLength);
+
+        return StandardMapUploader.PACKET_ID_SIZE + mapIdSize + StandardMapUploader.PACKET_STATIC_SIZE + canvasArrayLengthSize + canvasArrayLength;
     }
 
     @Override
