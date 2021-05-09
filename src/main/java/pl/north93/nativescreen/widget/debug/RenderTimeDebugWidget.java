@@ -1,6 +1,5 @@
 package pl.north93.nativescreen.widget.debug;
 
-import java.awt.*;
 import java.util.concurrent.TimeUnit;
 
 import pl.north93.nativescreen.renderer.IBoard;
@@ -42,7 +41,7 @@ public class RenderTimeDebugWidget extends AbstractHistogramWidget
 
     private void drawFpsBorderLine(final IMapCanvas canvas, final int millis)
     {
-        final byte LIGHT_GRAY = (byte) MapColor.find(Color.LIGHT_GRAY);
+        final byte LIGHT_GRAY = (byte) MapColor.GRAY;
 
         final double heightPercent = millis / SCALE_MIN_FPS_MILLIS;
         final int barHeight = (int) (heightPercent * this.height);

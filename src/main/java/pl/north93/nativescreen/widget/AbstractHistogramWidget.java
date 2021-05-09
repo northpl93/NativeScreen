@@ -1,7 +1,5 @@
 package pl.north93.nativescreen.widget;
 
-import java.awt.*;
-
 import pl.north93.nativescreen.renderer.IBoard;
 import pl.north93.nativescreen.renderer.IMapCanvas;
 import pl.north93.nativescreen.renderer.MapColor;
@@ -41,7 +39,7 @@ public abstract class AbstractHistogramWidget extends AbstractWidget
         }
 
         // render current position
-        final byte RED = (byte) MapColor.find(Color.RED);
+        final byte RED = (byte) MapColor.RED;
         for (int i = 0; i < this.height; i++)
         {
             canvas.setPixel(this.xBase + this.histogramPosition, this.yBase + this.height - i, RED);
