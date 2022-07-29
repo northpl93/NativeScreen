@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import pl.north93.nativescreen.config.BoardConfig;
 import pl.north93.nativescreen.config.PluginConfig;
 import pl.north93.nativescreen.fullscreen.SetFullScreenRendererCmd;
+import pl.north93.nativescreen.fullscreen.SetImageRendererCmd;
 import pl.north93.nativescreen.fullscreen.SetRandomColorRendererCmd;
 import pl.north93.nativescreen.gui.DebugMouseMovementRenderer;
 import pl.north93.nativescreen.input.INavigationController;
@@ -20,8 +21,8 @@ import pl.north93.nativescreen.input.helper.NavigationOutputHandlerRendererRedir
 import pl.north93.nativescreen.input.impl.MinecraftInputGrabber;
 import pl.north93.nativescreen.renderer.IBoard;
 import pl.north93.nativescreen.renderer.IMapManager;
-import pl.north93.nativescreen.renderer.cmd.SetTargetFpsCmd;
 import pl.north93.nativescreen.renderer.cmd.SetPerformanceCountersCmd;
+import pl.north93.nativescreen.renderer.cmd.SetTargetFpsCmd;
 import pl.north93.nativescreen.renderer.impl.MapManagerImpl;
 import pl.north93.nativescreen.video.cmd.PlayVideoCmd;
 import pl.north93.nativescreen.video.cmd.SetVideoRendererCmd;
@@ -61,6 +62,7 @@ public class MainPlugin extends JavaPlugin
         this.getCommand("setnativewindowrenderer").setExecutor(new SetNativeWindowRendererCmd());
         this.getCommand("setfullscreenrenderer").setExecutor(new SetFullScreenRendererCmd());
         this.getCommand("setrandomcolorrenderer").setExecutor(new SetRandomColorRendererCmd());
+        this.getCommand("setimagerenderer").setExecutor(new SetImageRendererCmd());
         this.getCommand("settargetfps").setExecutor(new SetTargetFpsCmd());
         this.getCommand("setperformancecounters").setExecutor(new SetPerformanceCountersCmd());
         this.getCommand("playvideo").setExecutor(new PlayVideoCmd());

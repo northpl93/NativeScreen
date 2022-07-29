@@ -39,8 +39,7 @@ public class EntityMetaPacketHelper
 
     /**
      * Adds a new metadata into this packet.
-     * Here is a list of all entity's metadatas:
-     * http://wiki.vg/Entities#Entity_Metadata_Format
+     * <a href="http://wiki.vg/Entities#Entity_Metadata_Format">Here is a list of all entity's metadatas</a>
      *
      * @param metaId ID of the metadata (Index on wiki.vg)
      * @param metaType Type of the metadata (Type on wiki.vg)
@@ -53,7 +52,7 @@ public class EntityMetaPacketHelper
     }
 
     /**
-     * Writes "packet end" marker into a internal buffer, and returns the buffer.
+     * Writes "packet end" marker into an internal buffer, and returns the buffer.
      * Remember to release the buffer obtained from this method.
      * Calling this method more than once will break the packet.
      *

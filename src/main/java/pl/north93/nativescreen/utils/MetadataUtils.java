@@ -78,22 +78,12 @@ public final class MetadataUtils
         metadatable.removeMetadata(name, MainPlugin.getInstance());
     }
 
-    /**
-     * Usuwa wszystkie metadane entity o UUID podanym w argumencie.
-     *
-     * @param entityId UUID entity któremu usuwamy metadane.
-     */
     public static void removeEntityMetadata(final UUID entityId)
     {
         final String keyStart = entityId + ":";
         removeMetadata(getEntityMetadata(), keyStart);
     }
 
-    /**
-     * Usuwa wszystkie metadane gracza podanego w argumencie.
-     *
-     * @param player Gracz któremu kasujemy metadane.
-     */
     public static void removePlayerMetadata(final Player player)
     {
         final String keyStart = player.getName().toLowerCase(Locale.ROOT) + ":";

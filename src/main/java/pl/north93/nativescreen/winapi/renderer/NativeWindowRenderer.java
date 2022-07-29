@@ -12,7 +12,7 @@ import pl.north93.nativescreen.renderer.IMapRenderer;
 import pl.north93.nativescreen.renderer.MapColor;
 import pl.north93.nativescreen.winapi.BetterUser32;
 import pl.north93.nativescreen.winapi.NativeImage;
-import pl.north93.nativescreen.winapi.Screenshooter;
+import pl.north93.nativescreen.winapi.Screenshoter;
 import pl.north93.nativescreen.winapi.WindowsInputEmulator;
 
 @ToString
@@ -55,7 +55,7 @@ public class NativeWindowRenderer implements IMapRenderer, NavigationOutputHandl
 
         try
         {
-            return Screenshooter.captureWindow(windowPointer);
+            return Screenshoter.captureWindow(windowPointer);
         }
         catch (final IllegalArgumentException e)
         {

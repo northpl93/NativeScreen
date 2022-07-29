@@ -10,7 +10,7 @@ import com.sun.jna.platform.win32.WinDef.HWND;
 import com.sun.jna.platform.win32.WinGDI;
 import com.sun.jna.platform.win32.WinNT;
 
-public class Screenshooter
+public final class Screenshoter
 {
     public static NativeImage captureWindow(final HWND hWnd)
     {

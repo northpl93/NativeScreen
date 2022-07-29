@@ -1,10 +1,12 @@
 plugins {
     id "io.freefair.lombok" version "5.3.0"
+    id 'me.champeau.gradle.jmh' version "0.5.3"
     id 'com.github.johnrengelman.shadow' version '4.0.3'
 }
 
 apply plugin: 'java'
 apply plugin: 'io.freefair.lombok'
+apply plugin: 'me.champeau.gradle.jmh'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 allprojects {
@@ -30,6 +32,8 @@ dependencies {
 
     implementation 'net.java.dev.jna:jna:4.4.0'
     implementation 'net.java.dev.jna:jna-platform:4.4.0'
+
+    jmh 'com.destroystokyo.paper:paper:1.12.2-R0.1-SNAPSHOT'
 }
 
 jar {
@@ -41,7 +45,7 @@ jar {
 }
 
 shadowJar {
-    archiveName "${project.name}.jar"
+    archiveFileName = "${project.name}.jar"
 }
 
 compileJava.sourceCompatibility = JavaVersion.VERSION_11

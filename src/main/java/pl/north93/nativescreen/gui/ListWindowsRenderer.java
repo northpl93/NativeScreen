@@ -9,7 +9,7 @@ public class ListWindowsRenderer extends AbstractBaseGuiRenderer
 {
     public ListWindowsRenderer()
     {
-        super("Lista okien");
+        super("Windows list");
     }
 
     @Override

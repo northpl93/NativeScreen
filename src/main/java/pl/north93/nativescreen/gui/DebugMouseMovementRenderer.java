@@ -11,7 +11,7 @@ public class DebugMouseMovementRenderer extends AbstractBaseGuiRenderer
 {
     public DebugMouseMovementRenderer()
     {
-        super("Debugowanie kursora");
+        super("Cursor debugging");
     }
 
     @Override
