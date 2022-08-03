@@ -8,10 +8,9 @@ import pl.north93.nativescreen.renderer.MapColor;
 
 @Slf4j
 @UtilityClass
-class ColorConverterCache
+class OldArrayBasedCache
 {
     private static final int COLOR_RANGE = 256;
-    private static final int CUT_ALPHA_BITMASK = 0x00ffffff;
     private static final byte[] TRANSLATION_CACHE = new byte[COLOR_RANGE * COLOR_RANGE * COLOR_RANGE];
 
     static
@@ -25,7 +24,7 @@ class ColorConverterCache
                     final Color color = new Color(r, g, b);
                     final byte newValue = (byte) MapColor.find(color);
 
-                    final int index = color.getRGB() & CUT_ALPHA_BITMASK;
+                    final int index = (- color.getRGB()) - 1;
                     TRANSLATION_CACHE[index] = newValue;
                 }
             }
@@ -36,6 +35,8 @@ class ColorConverterCache
 
     public static byte translateColor(final int rgbValue)
     {
-        return TRANSLATION_CACHE[rgbValue & CUT_ALPHA_BITMASK];
+        final int rgbNoAlpha = 0xff000000 | rgbValue;
+        final int index = (- rgbNoAlpha) - 1;
+        return TRANSLATION_CACHE[index];
     }
 }

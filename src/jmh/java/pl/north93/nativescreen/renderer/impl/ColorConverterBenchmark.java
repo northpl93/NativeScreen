@@ -67,6 +67,15 @@ public class ColorConverterBenchmark
     }
 
     @Benchmark
+    public void oldArrayBasedCache()
+    {
+        for (int i = 0; i < SCREEN_SIZE; i++)
+        {
+            this.outputScreenContent[i] = OldArrayBasedCache.translateColor(this.rgbScreenContent[i]);
+        }
+    }
+
+    @Benchmark
     public void arrayBasedCache()
     {
         for (int i = 0; i < SCREEN_SIZE; i++)

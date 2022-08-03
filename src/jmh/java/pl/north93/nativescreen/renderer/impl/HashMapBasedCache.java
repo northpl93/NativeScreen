@@ -3,7 +3,7 @@ package pl.north93.nativescreen.renderer.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HashMapBasedCache
+class HashMapBasedCache
 {
     private static final int COLOR_RANGE = 256;
     private static final Map<Integer, Byte> CACHE = new HashMap<>();

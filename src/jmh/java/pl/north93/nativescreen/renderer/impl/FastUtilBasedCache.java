@@ -3,7 +3,7 @@ package pl.north93.nativescreen.renderer.impl;
 import it.unimi.dsi.fastutil.ints.Int2ByteMap;
 import it.unimi.dsi.fastutil.ints.Int2ByteOpenHashMap;
 
-public class FastUtilBasedCache
+class FastUtilBasedCache
 {
     private static final int COLOR_RANGE = 256;
     private static final Int2ByteMap CACHE = new Int2ByteOpenHashMap();
